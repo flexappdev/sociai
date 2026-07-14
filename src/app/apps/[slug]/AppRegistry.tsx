@@ -6,10 +6,12 @@ import App0 from "../../../../apps/SociAI Builder Hub.jsx";
 import App1 from "../../../../apps/SociAI Feed.jsx";
 import App2 from "../../../../apps/SociAI Twin Network.jsx";
 import App3 from "../../../../apps/sociai-v2-1.jsx";
+import App4 from "../../../../apps/sociai-v2-2.jsx";
 
 export const REGISTRY: Record<string, ComponentType> = {
   "sociai-builder-hub": App0,
   "sociai-feed": App1,
   "sociai-twin-network": App2,
   "sociai-v2-1": App3,
+  "sociai-v2-2": App4,
 };

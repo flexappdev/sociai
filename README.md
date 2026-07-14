@@ -7,26 +7,31 @@ layer for the AI-native web. Part of `~/APPS/`.
 - **Local dev**: `npm run dev` → http://localhost:17005
 - **Repo**: https://github.com/flexappdev/sociai
 
-## Current version — v2.2
+## Current version — v2.2 (content-enriched)
 
-Canonical app: [`apps/sociai-v2-1.jsx`](apps/sociai-v2-1.jsx) — a single-file
+Canonical app: [`apps/sociai-v2-2.jsx`](apps/sociai-v2-2.jsx) — a single-file
 React SPA mounted at `/`. Deep-linkable via URL hash.
 
 | Feature | Details |
 |---|---|
-| **26 classes** | 13 per semester, each with lecture + reading + quiz |
-| **26 diagrams** | Inline SVG (flow, cycle, tree, compare, layers, pyramid, matrix) — one per class, rendered in the lecture body & book chapters |
-| **Exam runner** | 4 exams (2 midterms + 2 finals), each with a **functional practice mode**: pooled MCQs from the scope, live timer (25 min midterm / 40 min final), essay drafting pane, submit → score % + missed-question review |
-| **URL slugs** | Hash-based deep links — every page is bookmarkable and shareable |
-| **Book view** | All 26 chapters rendered as a single scrollable long-form book |
-| **Scroller view** | 286 vertical slides, one section per screen |
-| **Teacher mode** | Answer keys + marking rubrics visible on toggle |
+| **26 classes** | 13 per semester, each with lecture + reading + quiz. Every lecture section now runs 3 paragraphs (`ps: [...]`) — the enriched content from v2.2. |
+| **26 diagrams** | Inline SVG (flow, cycle, tree, compare, layers, pyramid, matrix) — one per class, rendered in the lecture body & book chapters. |
+| **Diagrams gallery** | Dedicated `#/diagrams` page — all 26 diagrams in one filterable grid (by semester or by kind). Click any card to jump to its lecture. |
+| **Exam runner** | 4 exams (2 midterms + 2 finals), each with a **functional practice mode**: pooled MCQs from the scope, live timer (25 min midterm / 40 min final), essay drafting pane, submit → score % + missed-question review. |
+| **URL slugs** | Hash-based deep links — every page is bookmarkable and shareable. |
+| **Book view** | All 26 chapters rendered as a single scrollable long-form book. |
+| **Scroller view** | 286 vertical slides, one section per screen. |
+| **Teacher mode** | Answer keys + marking rubrics visible on toggle. |
+
+> Prior version `apps/sociai-v2-1.jsx` remains browsable at `/apps/sociai-v2-1`
+> for comparison — same feature set on the leaner 1-paragraph content.
 
 ### Deep-link map
 
 ```
 #/dashboard              overview + progress
 #/s1  #/s2               semester grid (tiles/table/scroll views)
+#/diagrams               gallery of all 26 diagrams (filterable)
 #/book                   the whole course as a book
 #/scroller               vertical slide reader
 #/exams                  all 4 exams (summary cards)
@@ -68,7 +73,8 @@ export default function App() {
 Visit `/apps/<slug>` to see it rendered. The slug is derived from the filename.
 Currently registered prototypes:
 
-- `sociai-v2-1` — canonical course app (mounted at site root `/`)
+- `sociai-v2-2` — canonical course app, enriched content (mounted at site root `/`)
+- `sociai-v2-1` — prior version, leaner content
 - `sociai-feed` — TikTok-style AI content feed
 - `sociai-twin-network` — AI-twin social network
 - `sociai-builder-hub` — Product Hunt for AI apps

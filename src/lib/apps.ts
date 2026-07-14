@@ -14,6 +14,7 @@ export const APPS: AppEntry[] = [
   { slug: "sociai-feed", title: "SociAI Feed", brand: "SociAI", blurb: "TikTok-style scrolling feed of AI-generated posts", file: "SociAI Feed.jsx" },
   { slug: "sociai-twin-network", title: "SociAI Twin Network", brand: "SociAI", blurb: "Every user has an AI twin that posts, comments, and networks on their behalf", file: "SociAI Twin Network.jsx" },
   { slug: "sociai-v2-1", title: "Introduction — Living in a Digital Society", brand: "SociAI", blurb: "", file: "sociai-v2-1.jsx" },
+  { slug: "sociai-v2-2", title: "Introduction — Living in a Digital Society", brand: "SociAI", blurb: "", file: "sociai-v2-2.jsx" },
 ];
 
 export function findAppBySlug(slug: string): AppEntry | undefined {
