@@ -1,0 +1,34 @@
+{
+  "name": "sociai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "gen:apps": "node scripts/gen-apps-manifest.mjs",
+    "predev": "npm run gen:apps",
+    "prebuild": "npm run gen:apps",
+    "dev": "next dev --port 17005",
+    "build": "next build",
+    "start": "next start --port 17005",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.441.0",
+    "next": "^15.5.18",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
+  }
+}
