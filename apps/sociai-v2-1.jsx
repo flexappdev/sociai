@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Sun, Moon, Menu, Search, ChevronRight, ChevronLeft, LayoutGrid, List, Rows3,
   BookOpen, GraduationCap, FileText, LayoutDashboard, CheckCircle2, Circle,
@@ -101,6 +101,264 @@ function Btn({ children, variant = "primary", size = "sm", onClick, disabled, st
       display: "inline-flex", alignItems: "center", gap: 6, border: "none", transition: "all .15s",
       fontFamily: "inherit", opacity: disabled ? 0.5 : 1, ...sizes[size], ...variants[variant], ...style,
     }}>{children}</button>
+  );
+}
+
+/* ══════════ Slug helpers ══════════ */
+function slugify(str) {
+  return String(str).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+/* ══════════ Diagram registry — one visual per class ══════════
+   kinds: flow | cycle | tree | compare | layers | pyramid | matrix
+   Each session id maps to a compact spec rendered by <Diagram>. */
+const DIAGRAMS = {
+  s1c1: { kind: "layers", focus: "Deep Mediatization", labels: ["Work", "Intimacy", "Politics", "Health", "Play"], note: "Media is no longer a tool — it is where social life happens." },
+  s1c2: { kind: "flow", focus: "Algorithmic Assemblage", labels: ["Data", "Code", "Team", "Users", "Outcome"], note: "An algorithm is never just math." },
+  s1c3: { kind: "compare", focus: "3 ML Paradigms", labels: ["Supervised", "Unsupervised", "Reinforcement", "Labelled pairs", "Structure hunting", "Reward shaping"], note: "Every objective is a value choice." },
+  s1c4: { kind: "flow", focus: "GenAI Pipeline", labels: ["Corpus", "Pretrain", "Tune (RLHF)", "Prompt", "Output"], note: "Each arrow is a human decision." },
+  s1c5: { kind: "cycle", focus: "Surveillance Capitalism", labels: ["Extract", "Predict", "Modify", "Sell futures"], note: "Behaviour → data → predictions → behavioural markets." },
+  s1c6: { kind: "matrix", focus: "Attention Economy", labels: ["Time", "Engagement", "Ads", "Emotion"], note: "Attention is the scarce resource; outrage is the cheapest fuel." },
+  s1c7: { kind: "tree", focus: "Platform Society", labels: ["Search", "Social", "Marketplace", "Cloud", "Payments"], note: "Platforms are the operating layer of coordination." },
+  s1c8: { kind: "compare", focus: "Public vs Networked Public", labels: ["Public sphere", "Networked publics", "Deliberation", "Scroll & react", "Editors", "Algorithms"], note: "Same idea, new pipes, new gatekeepers." },
+  s1c9: { kind: "cycle", focus: "Gig Loop", labels: ["Task offered", "Worker accepts", "Algorithmic score", "Reallocation"], note: "The manager is a stopwatch that can fire you." },
+  s1c10: { kind: "layers", focus: "The Datafied Self", labels: ["Steps", "Sleep", "Mood", "Diet", "Sex"], note: "Optimisation becomes a moral vocabulary for intimacy." },
+  s1c11: { kind: "flow", focus: "Filter Bubble", labels: ["Click", "Signal", "Rank", "Feed", "Belief"], note: "The feed learns you faster than you learn it." },
+  s1c12: { kind: "matrix", focus: "Digital Divide 2×2", labels: ["Access", "Skill", "Have + Skill = Benefit", "Have − Skill = Passive", "Lack + Skill = Blocked", "Lack − Skill = Excluded"], note: "Access is only the first divide." },
+  s1c13: { kind: "compare", focus: "Semester 1 — Machines & Markets", labels: ["Media", "Data", "Platforms", "Culture", "Capital", "Labour"], note: "Six threads to synthesise for the midterm." },
+  s2c14: { kind: "tree", focus: "The Alignment Problem", labels: ["Values", "Reward", "Behaviour", "Outer align", "Inner align"], note: "Aligning to WHOSE values, decided HOW?" },
+  s2c15: { kind: "pyramid", focus: "Bias Stack", labels: ["Historical", "Representation", "Measurement", "Aggregation", "Deployment"], note: "Bias enters at every layer of the ML lifecycle." },
+  s2c16: { kind: "matrix", focus: "AI × Inequality", labels: ["Race", "Class", "Gender", "Global South"], note: "Existing hierarchies get automated at scale." },
+  s2c17: { kind: "flow", focus: "Automation Curve", labels: ["Task", "Codify", "Automate", "Displace", "Redesign"], note: "The question is not IF but WHO decides and WHO retrains." },
+  s2c18: { kind: "cycle", focus: "Info Disorder", labels: ["Create", "Amplify", "Believe", "Act"], note: "Misinformation is a social system, not a mistake." },
+  s2c19: { kind: "compare", focus: "Human vs Machine Cognition", labels: ["Human", "Machine", "Slow, embodied", "Fast, statistical", "Meaning-making", "Pattern-matching"], note: "Cognition is not one thing." },
+  s2c20: { kind: "layers", focus: "AI in Institutions", labels: ["School", "Hospital", "Court", "Police", "Welfare"], note: "Discretion is being replaced by dashboards." },
+  s2c21: { kind: "pyramid", focus: "Ethics of AI", labels: ["Values", "Principles", "Rules", "Practice", "Redress"], note: "Principles without redress are decoration." },
+  s2c22: { kind: "matrix", focus: "Regulatory Geographies", labels: ["EU regulates", "US innovates", "China coordinates", "Global South complies"], note: "Different games, different winners." },
+  s2c23: { kind: "tree", focus: "The EU AI Act", labels: ["Prohibited", "High-risk", "Limited-risk", "Minimal"], note: "Europe's risk-tiered ordering of AI." },
+  s2c24: { kind: "cycle", focus: "AI & Climate", labels: ["Train", "Emit", "Cool", "Discard"], note: "Every prompt has a physical footprint." },
+  s2c25: { kind: "flow", focus: "AI Governance Actors", labels: ["Labs", "States", "Users", "Civil society", "Standards bodies"], note: "Governance is a contest, not a table of rules." },
+  s2c26: { kind: "pyramid", focus: "Futures of AI Society", labels: ["Automation", "Augmentation", "Alignment", "Autonomy", "Accountability"], note: "The last question of the course is: who gets to answer these?" },
+};
+
+/* ══════════ Diagram component ══════════ */
+function Diagram({ spec, compact }) {
+  if (!spec) return null;
+  const H = compact ? 150 : 200;
+  const W = compact ? 320 : 460;
+  const c = "var(--primary)";
+  const cd = "var(--primary-deep)";
+  const bg = "var(--surface-2)";
+  const fg = "var(--foreground)";
+  const mute = "var(--muted-foreground)";
+
+  const renderKind = () => {
+    const { kind, labels } = spec;
+    const n = labels.length;
+
+    if (kind === "flow") {
+      // horizontal flow chain: A → B → C → D
+      const boxW = (W - 40) / n - 12;
+      const gap = 12;
+      return (
+        <g>
+          {labels.map((l, i) => {
+            const x = 20 + i * (boxW + gap);
+            const y = H / 2 - 22;
+            return (
+              <g key={i}>
+                <rect x={x} y={y} width={boxW} height={44} rx={8} fill={bg} stroke={c} strokeWidth={i === 0 || i === n - 1 ? 2 : 1} />
+                <text x={x + boxW / 2} y={y + 27} textAnchor="middle" fill={fg} fontSize={compact ? 10 : 11} fontWeight={600}>
+                  {l.length > 14 ? l.slice(0, 12) + "…" : l}
+                </text>
+                {i < n - 1 && (
+                  <path d={`M${x + boxW + 1} ${y + 22} L${x + boxW + gap - 3} ${y + 22}`}
+                    stroke={c} strokeWidth={1.5} markerEnd="url(#arr)" />
+                )}
+              </g>
+            );
+          })}
+        </g>
+      );
+    }
+    if (kind === "cycle") {
+      const cx = W / 2, cy = H / 2, r = compact ? 55 : 70;
+      const step = (2 * Math.PI) / n;
+      return (
+        <g>
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke={c} strokeWidth={1} strokeDasharray="4 3" opacity={0.5} />
+          {labels.map((l, i) => {
+            const a = -Math.PI / 2 + i * step;
+            const x = cx + Math.cos(a) * r;
+            const y = cy + Math.sin(a) * r;
+            return (
+              <g key={i}>
+                <circle cx={x} cy={y} r={compact ? 24 : 30} fill={bg} stroke={c} strokeWidth={1.5} />
+                <text x={x} y={y + 3} textAnchor="middle" fill={fg} fontSize={compact ? 9 : 10} fontWeight={600}>
+                  {l.length > 10 ? l.slice(0, 9) + "…" : l}
+                </text>
+              </g>
+            );
+          })}
+          {labels.map((_, i) => {
+            const a1 = -Math.PI / 2 + i * step;
+            const a2 = -Math.PI / 2 + ((i + 1) % n) * step;
+            const rr = compact ? 30 : 36;
+            const x1 = cx + Math.cos(a1) * (r - rr / 2) * 0.85 + Math.cos(a1 + Math.PI / 2) * 12;
+            const y1 = cy + Math.sin(a1) * (r - rr / 2) * 0.85 + Math.sin(a1 + Math.PI / 2) * 12;
+            const x2 = cx + Math.cos(a2) * (r - rr / 2) * 0.85 - Math.cos(a2 - Math.PI / 2) * 12;
+            const y2 = cy + Math.sin(a2) * (r - rr / 2) * 0.85 - Math.sin(a2 - Math.PI / 2) * 12;
+            return <path key={"a" + i} d={`M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`} stroke={c} strokeWidth={1} fill="none" markerEnd="url(#arr)" opacity={0.6} />;
+          })}
+        </g>
+      );
+    }
+    if (kind === "tree") {
+      // 1 root + n-1 children
+      const rootW = 130;
+      const childW = (W - 40) / Math.max(1, n - 1) - 10;
+      return (
+        <g>
+          <rect x={W / 2 - rootW / 2} y={22} width={rootW} height={38} rx={8} fill={c} stroke={cd} />
+          <text x={W / 2} y={46} textAnchor="middle" fill="#fff" fontSize={compact ? 11 : 12} fontWeight={700}>
+            {labels[0]?.length > 18 ? labels[0].slice(0, 17) + "…" : labels[0]}
+          </text>
+          {labels.slice(1).map((l, i) => {
+            const cxb = 20 + i * (childW + 10) + childW / 2;
+            const yb = H - 55;
+            return (
+              <g key={i}>
+                <line x1={W / 2} y1={60} x2={cxb} y2={yb} stroke={c} strokeWidth={1} />
+                <rect x={cxb - childW / 2} y={yb} width={childW} height={36} rx={7} fill={bg} stroke={c} />
+                <text x={cxb} y={yb + 22} textAnchor="middle" fill={fg} fontSize={compact ? 9 : 10} fontWeight={600}>
+                  {l.length > 13 ? l.slice(0, 12) + "…" : l}
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      );
+    }
+    if (kind === "compare") {
+      // Two columns of paired labels — head + rows
+      const half = Math.floor(labels.length / 2);
+      const leftLabels = labels.slice(0, half);
+      const rightLabels = labels.slice(half);
+      const rowH = (H - 40) / Math.max(1, half);
+      return (
+        <g>
+          {leftLabels.map((l, i) => (
+            <g key={"l" + i}>
+              <rect x={20} y={30 + i * rowH} width={W / 2 - 30} height={rowH - 8} rx={6} fill={bg} stroke={c} strokeWidth={i === 0 ? 2 : 1} />
+              <text x={W / 4 + 5} y={30 + i * rowH + rowH / 2 - 2} textAnchor="middle" fill={fg} fontSize={compact ? 10 : 11} fontWeight={i === 0 ? 700 : 500}>
+                {l.length > 18 ? l.slice(0, 17) + "…" : l}
+              </text>
+            </g>
+          ))}
+          {rightLabels.map((l, i) => (
+            <g key={"r" + i}>
+              <rect x={W / 2 + 10} y={30 + i * rowH} width={W / 2 - 30} height={rowH - 8} rx={6} fill={bg} stroke={cd} strokeWidth={i === 0 ? 2 : 1} />
+              <text x={(3 * W) / 4 - 5} y={30 + i * rowH + rowH / 2 - 2} textAnchor="middle" fill={fg} fontSize={compact ? 10 : 11} fontWeight={i === 0 ? 700 : 500}>
+                {l.length > 18 ? l.slice(0, 17) + "…" : l}
+              </text>
+            </g>
+          ))}
+        </g>
+      );
+    }
+    if (kind === "layers") {
+      const rowH = (H - 40) / n;
+      return (
+        <g>
+          {labels.map((l, i) => (
+            <g key={i}>
+              <rect x={30 + i * 4} y={20 + i * rowH} width={W - 60 - i * 8} height={rowH - 6} rx={6}
+                fill={bg} stroke={c} strokeWidth={1} opacity={0.5 + (i * 0.5) / n} />
+              <text x={W / 2} y={20 + i * rowH + rowH / 2 - 1} textAnchor="middle" fill={fg} fontSize={compact ? 10 : 11} fontWeight={600}>
+                {l.length > 24 ? l.slice(0, 22) + "…" : l}
+              </text>
+            </g>
+          ))}
+        </g>
+      );
+    }
+    if (kind === "pyramid") {
+      const rowH = (H - 40) / n;
+      return (
+        <g>
+          {labels.map((l, i) => {
+            const w = (W - 60) * (0.35 + (0.65 * i) / (n - 1 || 1));
+            const x = (W - w) / 2;
+            const y = H - 20 - (i + 1) * rowH;
+            return (
+              <g key={i}>
+                <rect x={x} y={y} width={w} height={rowH - 4} rx={4} fill={i === 0 ? c : bg} stroke={c} strokeWidth={1} />
+                <text x={W / 2} y={y + rowH / 2} textAnchor="middle"
+                  fill={i === 0 ? "#fff" : fg} fontSize={compact ? 9.5 : 10.5} fontWeight={i === 0 ? 700 : 600}>
+                  {l.length > 22 ? l.slice(0, 20) + "…" : l}
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      );
+    }
+    if (kind === "matrix") {
+      const half = Math.ceil(labels.length / 2);
+      const axis = labels.slice(0, 2);
+      const cells = labels.slice(2);
+      const cw = (W - 80) / 2, ch = (H - 60) / 2;
+      return (
+        <g>
+          <text x={W / 2} y={16} textAnchor="middle" fill={mute} fontSize={compact ? 9 : 10} fontWeight={700}>
+            {axis[0] || ""}
+          </text>
+          <text x={16} y={H / 2} textAnchor="middle" fill={mute} fontSize={compact ? 9 : 10} fontWeight={700}
+            transform={`rotate(-90 16 ${H / 2})`}>
+            {axis[1] || ""}
+          </text>
+          {[0, 1, 2, 3].map((i) => {
+            const col = i % 2, row = Math.floor(i / 2);
+            const x = 40 + col * cw, y = 26 + row * ch;
+            return (
+              <g key={i}>
+                <rect x={x} y={y} width={cw - 4} height={ch - 4} rx={6} fill={bg} stroke={c} strokeWidth={1} />
+                <text x={x + (cw - 4) / 2} y={y + (ch - 4) / 2 + 3} textAnchor="middle" fill={fg}
+                  fontSize={compact ? 9 : 10} fontWeight={600}>
+                  <tspan>{(cells[i] || "").slice(0, 22)}</tspan>
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: compact ? 10 : 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-foreground)", letterSpacing: "0.06em", display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <BarChart3 size={12} /> DIAGRAM · {spec.kind.toUpperCase()}
+        </div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--foreground)" }}>{spec.focus}</div>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={compact ? 150 : 200} style={{ display: "block" }}>
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,8 L7,4 z" fill={c} />
+          </marker>
+        </defs>
+        {renderKind()}
+      </svg>
+      {spec.note && (
+        <div style={{ marginTop: 8, fontSize: 11, color: "var(--muted-foreground)", fontStyle: "italic", textAlign: "center" }}>
+          {spec.note}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -825,6 +1083,7 @@ const COHORT = { students: 42, avgQuiz: 71, completion: 63, atRisk: 5,
 
 /* ══════════ Lecture content blocks (shared by Lecture reader & Book) ══════════ */
 function LectureBody({ s, compact }) {
+  const diagram = DIAGRAMS[s.id];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: compact ? 14 : 18 }}>
       <p style={{ fontSize: compact ? 13 : 14, lineHeight: 1.65, color: "var(--secondary-foreground)", fontStyle: "italic" }}>{s.lec.intro}</p>
@@ -833,6 +1092,7 @@ function LectureBody({ s, compact }) {
         {s.reading.kind === "paper" ? <FlaskConical size={15} style={{ flexShrink: 0, marginTop: 2, color: "var(--info)" }} /> : <Newspaper size={15} style={{ flexShrink: 0, marginTop: 2, color: "var(--warning)" }} />}
         <span><strong>{s.reading.kind === "paper" ? "Research paper" : "Press article"} · </strong>{s.reading.ref}</span>
       </div>
+      {diagram && <Diagram spec={diagram} compact={compact} />}
       {s.lec.sections.map((sec, i) => (
         <div key={i}>
           <div className="serif" style={{ fontSize: compact ? 16 : 18, fontWeight: 700, marginBottom: 6, color: "var(--foreground)" }}>
@@ -920,6 +1180,178 @@ function QuizPanel({ session, result, onFinish, isTeacher }) {
           <ListChecks size={14} /> Submit quiz {allAnswered ? "" : `(${Object.keys(answers).length}/${total} answered)`}
         </Btn>
       )}
+    </div>
+  );
+}
+
+/* ══════════ Exam runner (functional practice-exam) ══════════ */
+function ExamCard({ exam, isTeacher }) {
+  const [mode, setMode] = useState("summary"); // summary | mcq | done
+  const bank = useMemo(() => {
+    const m = String(exam.scope).match(/(\d+)[^\d]+(\d+)/);
+    const [lo, hi] = m ? [Number(m[1]), Number(m[2])] : [1, 26];
+    const pool = [];
+    SESSIONS.filter(s => s.num >= lo && s.num <= hi).forEach(s => {
+      s.quiz.forEach((q, qi) => pool.push({ ...q, from: s.num, sid: s.id, qi }));
+    });
+    return pool;
+  }, [exam.id]);
+  const totalTimeSec = exam.kind === "Final" ? 40 * 60 : 25 * 60;
+  const [remaining, setRemaining] = useState(totalTimeSec);
+  const [answers, setAnswers] = useState({});
+  const [essay, setEssay] = useState("");
+
+  useEffect(() => {
+    if (mode !== "mcq") return;
+    const t = setInterval(() => setRemaining(r => (r <= 1 ? (clearInterval(t), setMode("done"), 0) : r - 1)), 1000);
+    return () => clearInterval(t);
+  }, [mode]);
+
+  const fmt = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const wordCount = essay.trim() ? essay.trim().split(/\s+/).length : 0;
+  const score = bank.reduce((s, q, i) => s + (answers[i] === q.a ? 1 : 0), 0);
+  const pct = bank.length ? Math.round((score / bank.length) * 100) : 0;
+
+  if (mode === "summary") {
+    return (
+      <div id={"exam-" + slugify(exam.kind + "-s" + exam.sem)} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}>
+            {exam.kind === "Final" ? <Award size={16} style={{ color: "var(--primary)" }} /> : <PenLine size={16} style={{ color: "var(--info)" }} />}
+            Semester {exam.sem} — {exam.kind}
+          </div>
+          <Badge variant={exam.kind === "Final" ? "primary" : "info"} size="xs">{exam.week}</Badge>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 12px", fontSize: 12 }}>
+          <span style={{ color: "var(--muted-foreground)", fontWeight: 600 }}>Format</span><span>{exam.format}</span>
+          <span style={{ color: "var(--muted-foreground)", fontWeight: 600 }}>Scope</span><span>{exam.scope}</span>
+          <span style={{ color: "var(--muted-foreground)", fontWeight: 600 }}>MCQ pool</span><span>{bank.length} questions · timer {Math.round(totalTimeSec / 60)} min</span>
+        </div>
+        <div style={{ marginTop: 10, background: "var(--surface-2)", borderRadius: 8, padding: "10px 12px", fontSize: 12, fontStyle: "italic", color: "var(--secondary-foreground)" }}>
+          Sample essay question — {exam.essay}
+        </div>
+        {isTeacher && (
+          <div style={{ marginTop: 10, background: "var(--warning-muted)", borderRadius: 8, padding: "10px 12px", fontSize: 11.5,
+            display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <KeyRound size={13} style={{ color: "var(--warning)", flexShrink: 0, marginTop: 1 }} />
+            <span><strong>Marking rubric (teacher only):</strong> {exam.rubric}</span>
+          </div>
+        )}
+        <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+          <Btn variant="primary" size="sm" onClick={() => { setMode("mcq"); setRemaining(totalTimeSec); }}>
+            <PenLine size={13} /> Start practice exam
+          </Btn>
+          <Btn variant="ghost" size="sm" onClick={() => { setEssay(""); setMode("mcq"); setRemaining(totalTimeSec); }}>
+            <FileText size={13} /> With essay
+          </Btn>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "mcq") {
+    return (
+      <div style={{ background: "var(--card)", border: "2px solid var(--primary)", borderRadius: 12, padding: 18 }}>
+        <div style={{ position: "sticky", top: 0, background: "var(--card)", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--border)" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}>
+            <FlaskConical size={15} style={{ color: "var(--info)" }} /> {exam.kind} · S{exam.sem}
+          </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <div style={{ fontFamily: "ui-monospace, monospace", fontWeight: 700, fontSize: 15, color: remaining < 60 ? "var(--destructive)" : "var(--primary)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <Clock size={14} /> {fmt(remaining)}
+            </div>
+            <Btn variant="ghost" size="xs" onClick={() => setMode("done")}>Submit</Btn>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {bank.map((q, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6, color: "var(--foreground)" }}>
+                <span style={{ color: "var(--muted-foreground)" }}>[Class {q.from}]</span> {i + 1}. {q.q}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {q.o.map((opt, oi) => {
+                  const chosen = answers[i] === oi;
+                  return (
+                    <button key={oi} onClick={() => setAnswers(a => ({ ...a, [i]: oi }))}
+                      style={{
+                        textAlign: "left", fontFamily: "inherit", fontSize: 12, cursor: "pointer", padding: "7px 10px", borderRadius: 6,
+                        border: `1px solid ${chosen ? "var(--primary)" : "var(--border)"}`,
+                        background: chosen ? "var(--accent)" : "var(--surface-1)",
+                        color: "var(--foreground)",
+                      }}>
+                      <span style={{ opacity: 0.6, marginRight: 6, fontWeight: 700 }}>{String.fromCharCode(65 + oi)}.</span> {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+          <div style={{ marginTop: 8 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <FileText size={14} /> Essay (optional)
+            </div>
+            <div style={{ background: "var(--surface-2)", borderRadius: 8, padding: "8px 10px", fontSize: 11.5, fontStyle: "italic", color: "var(--secondary-foreground)", marginBottom: 6 }}>
+              {exam.essay}
+            </div>
+            <textarea value={essay} onChange={e => setEssay(e.target.value)} rows={8} placeholder="Draft your essay here — aim for 400–600 words for a midterm, 800–1200 for a final."
+              style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8, padding: 10, color: "var(--foreground)", fontFamily: "inherit", fontSize: 13, lineHeight: 1.55, resize: "vertical" }} />
+            <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 4, textAlign: "right" }}>
+              {wordCount} words
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 6 }}>
+            <Btn variant="ghost" size="sm" onClick={() => { setAnswers({}); setEssay(""); setMode("summary"); }}>Cancel</Btn>
+            <Btn variant="primary" size="sm" onClick={() => setMode("done")}>Submit exam</Btn>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // done
+  return (
+    <div style={{ background: "var(--card)", border: `2px solid ${pct >= 60 ? "var(--success)" : "var(--warning)"}`, borderRadius: 12, padding: 18 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <div style={{ fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}>
+          <Award size={16} style={{ color: pct >= 60 ? "var(--success)" : "var(--warning)" }} />
+          Practice complete — S{exam.sem} {exam.kind}
+        </div>
+        <Badge variant={pct >= 60 ? "success" : "warning"} size="xs">{pct}%</Badge>
+      </div>
+      <div style={{ fontSize: 13 }}>
+        MCQ score: <strong>{score}/{bank.length}</strong> · Essay: <strong>{wordCount} words</strong> {essay ? "(drafted)" : "(skipped)"}
+      </div>
+      <div style={{ marginTop: 10, background: "var(--surface-2)", borderRadius: 8, padding: 10, fontSize: 12, color: "var(--secondary-foreground)" }}>
+        {pct >= 80 ? "Excellent grasp of the scope — you would pass this exam comfortably." :
+         pct >= 60 ? "Solid — revise the classes where you missed 2+ questions." :
+         "Below the pass line — reread the lectures for the covered classes and retake."}
+      </div>
+      {/* Missed questions review */}
+      {Object.keys(answers).length > 0 && (
+        <details style={{ marginTop: 10 }}>
+          <summary style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: "var(--accent-foreground)" }}>
+            Review missed questions ({bank.filter((_, i) => answers[i] !== undefined && answers[i] !== bank[i].a).length})
+          </summary>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+            {bank.map((q, i) => {
+              if (answers[i] === q.a || answers[i] === undefined) return null;
+              return (
+                <div key={i} style={{ background: "var(--surface-2)", borderLeft: "3px solid var(--destructive)", padding: "8px 10px", borderRadius: "0 6px 6px 0", fontSize: 11.5 }}>
+                  <div style={{ fontWeight: 700, marginBottom: 3 }}>[Class {q.from}] {q.q}</div>
+                  <div style={{ color: "var(--destructive)" }}>Your answer: {q.o[answers[i]]}</div>
+                  <div style={{ color: "var(--success)" }}>Correct: {q.o[q.a]}</div>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
+      <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+        <Btn variant="secondary" size="sm" onClick={() => { setMode("summary"); setAnswers({}); setEssay(""); setRemaining(totalTimeSec); }}>
+          <RotateCcw size={13} /> Retake
+        </Btn>
+      </div>
     </div>
   );
 }
@@ -1038,6 +1470,59 @@ export default function App() {
   const selected = SESSIONS.find(s => s.id === selectedId) || null;
   const lecture = SESSIONS.find(s => s.id === lectureId) || null;
   const sem = activeNav === "s1" ? 1 : activeNav === "s2" ? 2 : null;
+
+  /* ── URL slug routing (hash-based, deep-linkable) ──
+     #/dashboard | #/s1 | #/s2 | #/book | #/scroller | #/exams
+     #/lecture/<slug> · full lecture reader
+     #/class/<slug>[/quiz] · session with side panel
+     #/exam/<slug> · scroll to that exam card                       */
+  const findBySlug = (slug) => SESSIONS.find(s => slugify(s.title) === slug);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const applyHash = () => {
+      const h = window.location.hash.replace(/^#\/?/, "");
+      if (!h) return;
+      const [top, arg, extra] = h.split("/");
+      if (["dashboard", "s1", "s2", "book", "scroller", "exams"].includes(top)) {
+        setActiveNav(top);
+        setLectureId(null);
+      } else if (top === "lecture" && arg) {
+        const s = findBySlug(arg);
+        if (s) { setLectureId(s.id); setSelectedId(s.id); setActiveNav(s.sem === 1 ? "s1" : "s2"); }
+      } else if (top === "class" && arg) {
+        const s = findBySlug(arg);
+        if (s) {
+          setSelectedId(s.id); setActiveNav(s.sem === 1 ? "s1" : "s2");
+          setCtxTab(extra === "quiz" ? "quiz" : "details"); setCtxOpen(true); setLectureId(null);
+        }
+      } else if (top === "exam" && arg) {
+        setActiveNav("exams");
+        setTimeout(() => {
+          const el = document.getElementById("exam-" + arg);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
+      }
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let target = "#/" + activeNav;
+    if (lectureId) {
+      const s = SESSIONS.find(x => x.id === lectureId);
+      if (s) target = "#/lecture/" + slugify(s.title);
+    } else if (selectedId && (activeNav === "s1" || activeNav === "s2")) {
+      const s = SESSIONS.find(x => x.id === selectedId);
+      if (s) target = "#/class/" + slugify(s.title) + (ctxTab === "quiz" ? "/quiz" : "");
+    }
+    if (window.location.hash !== target) {
+      history.replaceState(null, "", target);
+    }
+  }, [activeNav, lectureId, selectedId, ctxTab]);
 
   const filtered = useMemo(() => {
     let list = sem ? SESSIONS.filter(s => s.sem === sem) : SESSIONS;
@@ -1433,31 +1918,13 @@ export default function App() {
   const ExamsView = () => (
     <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16, maxWidth: 860, margin: "0 auto" }}>
       <div className="serif" style={{ fontSize: 22, fontWeight: 800 }}>Exams · 2026/2027</div>
+      <div style={{ fontSize: 12.5, color: "var(--muted-foreground)", lineHeight: 1.55 }}>
+        Four exams across the year — two midterms and two finals. Each card below opens a
+        <strong style={{ color: "var(--foreground)" }}> functional practice exam</strong> pulling MCQs from the covered
+        classes&rsquo; quiz banks, with a live timer and an essay-drafting pane.
+      </div>
       {EXAMS.map(e => (
-        <div key={e.id} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 18 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}>
-              {e.kind === "Final" ? <Award size={16} style={{ color: "var(--primary)" }} /> : <PenLine size={16} style={{ color: "var(--info)" }} />}
-              Semester {e.sem} — {e.kind}
-            </div>
-            <Badge variant={e.kind === "Final" ? "primary" : "info"} size="xs">{e.week}</Badge>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 12px", fontSize: 12 }}>
-            <span style={{ color: "var(--muted-foreground)", fontWeight: 600 }}>Format</span><span>{e.format}</span>
-            <span style={{ color: "var(--muted-foreground)", fontWeight: 600 }}>Scope</span><span>{e.scope}</span>
-            <span style={{ color: "var(--muted-foreground)", fontWeight: 600 }}>MCQ</span><span>{e.mcqNote}</span>
-          </div>
-          <div style={{ marginTop: 10, background: "var(--surface-2)", borderRadius: 8, padding: "10px 12px", fontSize: 12, fontStyle: "italic", color: "var(--secondary-foreground)" }}>
-            Sample essay question — {e.essay}
-          </div>
-          {isTeacher && (
-            <div style={{ marginTop: 10, background: "var(--warning-muted)", borderRadius: 8, padding: "10px 12px", fontSize: 11.5,
-              display: "flex", gap: 8, alignItems: "flex-start" }}>
-              <KeyRound size={13} style={{ color: "var(--warning)", flexShrink: 0, marginTop: 1 }} />
-              <span><strong>Marking rubric (teacher only):</strong> {e.rubric}</span>
-            </div>
-          )}
-        </div>
+        <ExamCard key={e.id} exam={e} isTeacher={isTeacher} />
       ))}
     </div>
   );
