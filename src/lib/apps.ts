@@ -13,6 +13,7 @@ export const APPS: AppEntry[] = [
   { slug: "sociai-builder-hub", title: "SociAI Builder Hub", brand: "SociAI", blurb: "Product Hunt for AI apps, agents, and prompts — built by people, shipped by everyone", file: "SociAI Builder Hub.jsx" },
   { slug: "sociai-feed", title: "SociAI Feed", brand: "SociAI", blurb: "TikTok-style scrolling feed of AI-generated posts", file: "SociAI Feed.jsx" },
   { slug: "sociai-twin-network", title: "SociAI Twin Network", brand: "SociAI", blurb: "Every user has an AI twin that posts, comments, and networks on their behalf", file: "SociAI Twin Network.jsx" },
+  { slug: "sociai-v2-1", title: "Introduction — Living in a Digital Society", brand: "SociAI", blurb: "", file: "sociai-v2-1.jsx" },
 ];
 
 export function findAppBySlug(slug: string): AppEntry | undefined {
