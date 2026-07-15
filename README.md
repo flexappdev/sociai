@@ -7,44 +7,52 @@ layer for the AI-native web. Part of `~/APPS/`.
 - **Local dev**: `npm run dev` → http://localhost:17005
 - **Repo**: https://github.com/flexappdev/sociai
 
-## Current version — v2.2 (content-enriched)
+## Current version — v2.3 (gamified · path-routed · full profile)
 
 Canonical app: [`apps/sociai-v2-2.jsx`](apps/sociai-v2-2.jsx) — a single-file
-React SPA mounted at `/`. Deep-linkable via URL hash.
+React SPA mounted at `/` via Next.js catch-all route `[[...slug]]`. Every page
+is a real URL (no `#` fragment).
 
 | Feature | Details |
 |---|---|
-| **26 classes** | 13 per semester, each with lecture + reading + quiz. Every lecture section now runs 3 paragraphs (`ps: [...]`) — the enriched content from v2.2. |
-| **26 diagrams** | Inline SVG (flow, cycle, tree, compare, layers, pyramid, matrix) — one per class, rendered in the lecture body & book chapters. |
-| **Diagrams gallery** | Dedicated `#/diagrams` page — all 26 diagrams in one filterable grid (by semester or by kind). Click any card to jump to its lecture. |
-| **Exam runner** | 4 exams (2 midterms + 2 finals), each with a **functional practice mode**: pooled MCQs from the scope, live timer (25 min midterm / 40 min final), essay drafting pane, submit → score % + missed-question review. |
-| **URL slugs** | Hash-based deep links — every page is bookmarkable and shareable. |
-| **Book view** | All 26 chapters rendered as a single scrollable long-form book. |
-| **Scroller view** | 286 vertical slides, one section per screen. |
+| **Path-based URLs (no `#`)** | Every view is a clean path — `/book`, `/diagrams`, `/lecture/<slug>`, `/exam/final-s2`, `/user`. Refreshable, shareable, indexable. |
+| **Login credentials** | `student / student2026` for student mode · `teacher / teacher2026` for teacher mode. |
+| **Header user chip** | Shows current username + avatar with a dropdown to switch between student/teacher, jump to profile, or log out. |
+| **Gamification** | 10 pts per correct quiz answer · 5-level ladder (Reader → Student → Sociologist → Analyst → Scholar). Sticky footer chip shows points + level + progress bar, links to `/user`. |
+| **User profile** | New `/user` page — editable display name / email / bio · stats card (points / quizzes / next level) · 5-tier level ladder · full activity log (auto-populated from quiz submissions). |
+| **Lectures index** | New `/lectures` page — all 26 lectures in one table with filters (semester / reading kind / status) + diagram-kind column. |
+| **26 classes** | 13 per semester, each with lecture + reading + quiz. Every lecture section runs 3 paragraphs (`ps: [...]`). |
+| **26 hero diagrams** | Inline SVG (flow, cycle, tree, compare, layers, pyramid, matrix) — one per class. |
+| **Per-section diagrams** | ~40 additional diagrams appear at the bottom of individual lecture sections where they add signal. |
+| **Diagrams gallery** | `/diagrams` — all 26 hero diagrams in one filterable grid (by semester or by kind). |
+| **Exam runner** | 4 exams (2 midterms + 2 finals) with **functional practice**: pooled MCQs + live countdown timer + essay pane + score % + missed-question review. |
+| **Book / Scroller** | All 26 chapters as a scrollable book; 286 vertical slides in the scroller. |
 | **Teacher mode** | Answer keys + marking rubrics visible on toggle. |
 
-> Prior version `apps/sociai-v2-1.jsx` remains browsable at `/apps/sociai-v2-1`
-> for comparison — same feature set on the leaner 1-paragraph content.
-
-### Deep-link map
+### URL map (no `#`)
 
 ```
-#/dashboard              overview + progress
-#/s1  #/s2               semester grid (tiles/table/scroll views)
-#/diagrams               gallery of all 26 diagrams (filterable)
-#/book                   the whole course as a book
-#/scroller               vertical slide reader
-#/exams                  all 4 exams (summary cards)
-#/lecture/<slug>         full-page lecture reader for one class
-#/class/<slug>           class with side-panel details
-#/class/<slug>/quiz      class with the quiz tab active
-#/exam/<kind>-s<n>       scroll to a specific exam card (e.g. midterm-s1)
+/                          canonical mount → dashboard
+/dashboard                 overview + progress
+/lectures                  all-lecture index with filters
+/s1  /s2                   semester grid (tiles/table/scroll views)
+/diagrams                  gallery of all 26 hero diagrams
+/book                      the whole course as a book
+/scroller                  vertical slide reader
+/exams                     all 4 exams
+/user                      profile · progress · activity log
+/lecture/<slug>            full-page lecture reader for one class
+/class/<slug>              class with side-panel details
+/class/<slug>/quiz         class with the quiz tab active
+/exam/<kind>-s<n>          scroll to a specific exam card (e.g. final-s2)
 ```
 
 Slug is derived from `slugify(session.title)`, so e.g.:
-- `#/lecture/algorithms-power-in-the-code`
-- `#/class/surveillance-capitalism/quiz`
-- `#/exam/final-s2`
+- `/lecture/algorithms-power-in-the-code`
+- `/class/surveillance-capitalism/quiz`
+- `/exam/final-s2`
+
+> Prior version `apps/sociai-v2-1.jsx` still browsable at `/apps/sociai-v2-1`.
 
 ## Prototype pattern
 

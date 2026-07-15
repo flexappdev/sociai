@@ -5,6 +5,7 @@ import {
   Newspaper, FlaskConical, Clock, Award, PenLine, ListChecks, X, RotateCcw, Mic,
   BookMarked, LogOut, User, Lock, Users, Eye, EyeOff, ArrowLeft, Lightbulb,
   MessageCircleQuestion, KeyRound, BarChart3, AlertTriangle, Sparkles, Shuffle, Film,
+  Check, Trophy, Zap, Save, Edit3, TrendingUp,
 } from "lucide-react";
 
 /* ══════════ TOKENS — SociAI (slate neutrals + #006699 accent, dark-first) ══════════ */
@@ -139,6 +140,95 @@ const DIAGRAMS = {
   s2c24: { kind: "cycle", focus: "AI & Climate", labels: ["Train", "Emit", "Cool", "Discard"], note: "Every prompt has a physical footprint." },
   s2c25: { kind: "flow", focus: "AI Governance Actors", labels: ["Labs", "States", "Users", "Civil society", "Standards"], note: "Governance is a contest, not a table of rules." },
   s2c26: { kind: "pyramid", focus: "Futures of AI Society", labels: ["Automation", "Augmentation", "Alignment", "Autonomy", "Accountability"], note: "The last question of the course is: who gets to answer these?" },
+};
+
+/* ══════════ Per-section diagrams (bottom-of-section, only where they add signal) ══════════
+   Keyed by session id → object of sectionIndex → spec. Sparse on purpose. */
+const SECTION_DIAGRAMS = {
+  s1c1: {
+    0: { kind: "compare", focus: "Tools vs Environments", labels: ["Old media", "New media", "Discrete", "Ambient", "Used", "Inhabited"] },
+    2: { kind: "flow", focus: "Sociological Lens", labels: ["Interests", "Design", "Deploy", "Effects", "Contest"] },
+    6: { kind: "matrix", focus: "Divide Squared", labels: ["Access", "Skill", "Benefit", "Passive", "Blocked", "Excluded"] },
+  },
+  s1c2: {
+    1: { kind: "layers", focus: "Black-Box Layers", labels: ["Interface", "Model", "Data", "Team", "Business"] },
+    5: { kind: "flow", focus: "Scored Society", labels: ["Data", "Score", "Threshold", "Decision", "Fate"] },
+    7: { kind: "cycle", focus: "Folk Theory Loop", labels: ["Observe", "Theorise", "Strategise", "Reshape"] },
+  },
+  s1c3: {
+    1: { kind: "layers", focus: "Deep Net Stack", labels: ["Input", "Edges", "Shapes", "Faces", "Label"] },
+    3: { kind: "flow", focus: "Data Pipeline", labels: ["Collect", "Clean", "Label", "Filter", "Train"] },
+  },
+  s1c4: {
+    2: { kind: "flow", focus: "RLHF Chain", labels: ["Pretrain", "SFT", "Reward model", "PPO", "Deploy"] },
+  },
+  s1c5: {
+    2: { kind: "cycle", focus: "Behavioural Futures Market", labels: ["Data", "Predict", "Nudge", "Sell"] },
+  },
+  s1c6: {
+    3: { kind: "compare", focus: "Attention Battle", labels: ["Signal", "Noise", "Slow news", "Outrage", "Trust", "Engagement"] },
+  },
+  s1c7: {
+    2: { kind: "tree", focus: "Platform Stack", labels: ["Platform", "Users", "Complementors", "Data", "Advertisers"] },
+  },
+  s1c8: {
+    3: { kind: "compare", focus: "Gatekeepers Then/Now", labels: ["Editors", "Algorithms", "Trained", "Optimised", "Accountable", "Opaque"] },
+  },
+  s1c9: {
+    2: { kind: "flow", focus: "Score → Reallocation", labels: ["Task", "Rating", "Ranking", "Offers", "Income"] },
+  },
+  s1c10: {
+    4: { kind: "cycle", focus: "Optimisation Loop", labels: ["Measure", "Score", "Adjust", "Reward"] },
+  },
+  s1c11: {
+    2: { kind: "cycle", focus: "Feed Loop", labels: ["Click", "Signal", "Rank", "Show"] },
+  },
+  s1c12: {
+    1: { kind: "pyramid", focus: "Divide Pyramid", labels: ["Access", "Skills", "Usage", "Outcomes", "Power"] },
+  },
+  s1c13: {
+    0: { kind: "layers", focus: "Six Threads", labels: ["Media", "Data", "Platforms", "Culture", "Capital", "Labour"] },
+  },
+  s2c14: {
+    1: { kind: "compare", focus: "Outer vs Inner", labels: ["Outer", "Inner", "Specify goal", "Learn goal", "Values map", "Model wants"] },
+    3: { kind: "tree", focus: "Whose Values?", labels: ["Values", "Users", "Firm", "Society", "Global"] },
+  },
+  s2c15: {
+    2: { kind: "pyramid", focus: "Bias Ladder", labels: ["Historical", "Sampling", "Labels", "Model", "Threshold"] },
+  },
+  s2c16: {
+    1: { kind: "matrix", focus: "Automated Inequality", labels: ["Group", "Effect", "Hiring", "Housing", "Policing", "Welfare"] },
+  },
+  s2c17: {
+    2: { kind: "flow", focus: "Redesign Curve", labels: ["Task", "Codify", "Automate", "Retrain", "Redesign"] },
+  },
+  s2c18: {
+    2: { kind: "cycle", focus: "Amplification Cycle", labels: ["Post", "Rank", "Believe", "Share"] },
+  },
+  s2c19: {
+    3: { kind: "compare", focus: "Reasoning Kinds", labels: ["Human", "Machine", "Causal", "Correlational", "Embodied", "Vector"] },
+  },
+  s2c20: {
+    2: { kind: "layers", focus: "Dashboard Stack", labels: ["Frontline", "Team", "Manager", "Executive", "Regulator"] },
+  },
+  s2c21: {
+    2: { kind: "flow", focus: "Principle → Redress", labels: ["Value", "Principle", "Rule", "Practice", "Redress"] },
+  },
+  s2c22: {
+    1: { kind: "matrix", focus: "Regulatory Games", labels: ["Speed", "Care", "US", "EU", "China", "GS"] },
+  },
+  s2c23: {
+    1: { kind: "pyramid", focus: "AI Act Tiers", labels: ["Prohibited", "High risk", "Limited", "Minimal", "Out of scope"] },
+  },
+  s2c24: {
+    2: { kind: "cycle", focus: "Compute Footprint", labels: ["Power", "Cool", "Emit", "Discard"] },
+  },
+  s2c25: {
+    2: { kind: "tree", focus: "Governance Web", labels: ["Actors", "Labs", "States", "Publics", "Standards"] },
+  },
+  s2c26: {
+    3: { kind: "pyramid", focus: "5 A's of AI Society", labels: ["Automation", "Augmentation", "Alignment", "Autonomy", "Accountability"] },
+  },
 };
 
 /* ══════════ Diagram component ══════════ */
@@ -926,12 +1016,14 @@ const EXAMS = [
 
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "lectures", label: "Lectures", icon: Mic },
   { id: "s1", label: "Semester 1", icon: BookOpen },
   { id: "s2", label: "Semester 2", icon: GraduationCap },
   { id: "diagrams", label: "Diagrams", icon: BarChart3 },
   { id: "book", label: "Book", icon: BookMarked },
   { id: "scroller", label: "Scroller", icon: Film },
   { id: "exams", label: "Exams", icon: FileText },
+  { id: "user", label: "Profile", icon: User },
 ];
 
 /* Mock cohort data — teacher view only */
@@ -951,18 +1043,26 @@ function LectureBody({ s, compact }) {
         <span><strong>{s.reading.kind === "paper" ? "Research paper" : "Press article"} · </strong>{s.reading.ref}</span>
       </div>
       {diagram && <Diagram spec={diagram} compact={compact} />}
-      {s.lec.sections.map((sec, i) => (
-        <div key={i}>
-          <div className="serif" style={{ fontSize: compact ? 16 : 18, fontWeight: 700, marginBottom: 6, color: "var(--foreground)" }}>
-            {i + 1}. {sec.h}
+      {s.lec.sections.map((sec, i) => {
+        const secDia = SECTION_DIAGRAMS[s.id]?.[i];
+        return (
+          <div key={i}>
+            <div className="serif" style={{ fontSize: compact ? 16 : 18, fontWeight: 700, marginBottom: 6, color: "var(--foreground)" }}>
+              {i + 1}. {sec.h}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: compact ? 7 : 9 }}>
+              {sec.ps.map((p, pi) => (
+                <p key={pi} style={{ fontSize: compact ? 12.5 : 13.5, lineHeight: 1.7 }}>{p}</p>
+              ))}
+            </div>
+            {secDia && (
+              <div style={{ marginTop: compact ? 10 : 12 }}>
+                <Diagram spec={secDia} compact />
+              </div>
+            )}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: compact ? 7 : 9 }}>
-            {sec.ps.map((p, pi) => (
-              <p key={pi} style={{ fontSize: compact ? 12.5 : 13.5, lineHeight: 1.7 }}>{p}</p>
-            ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
       <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "1fr 1fr", gap: 12 }}>
         <div style={{ background: "var(--surface-2)", borderRadius: 10, padding: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, display: "flex", gap: 6, alignItems: "center", marginBottom: 8, color: "var(--accent-foreground)" }}>
@@ -1213,6 +1313,28 @@ function ExamCard({ exam, isTeacher }) {
 }
 
 /* ══════════ Landing + Login ══════════ */
+const APP_VERSION = "v2.3";
+const CREDENTIALS = {
+  student: { user: "student", pass: "student2026" },
+  teacher: { user: "teacher", pass: "teacher2026" },
+};
+/* ══════════ Gamification: 5-level ladder ══════════
+   10 pts per correct quiz answer · 26 classes × 3 quiz = 780 max points */
+const LEVELS = [
+  { n: 1, min: 0, title: "Reader" },
+  { n: 2, min: 100, title: "Student" },
+  { n: 3, min: 250, title: "Sociologist" },
+  { n: 4, min: 450, title: "Analyst" },
+  { n: 5, min: 650, title: "Scholar" },
+];
+function computeGamification(quizResults) {
+  const points = Object.values(quizResults).reduce((s, r) => s + (r.score || 0) * 10, 0);
+  const cur = LEVELS.slice().reverse().find(l => points >= l.min) || LEVELS[0];
+  const next = LEVELS.find(l => l.min > cur.min);
+  const progress = next ? Math.round(((points - cur.min) / (next.min - cur.min)) * 100) : 100;
+  return { points, level: cur.n, title: cur.title, next, progress: Math.min(100, Math.max(0, progress)) };
+}
+
 function Landing({ onLogin, theme, setTheme }) {
   const [role, setRole] = useState(null); // null | 'student' | 'teacher'
   const [user, setUser] = useState("");
@@ -1220,8 +1342,9 @@ function Landing({ onLogin, theme, setTheme }) {
   const [err, setErr] = useState("");
 
   const tryLogin = () => {
-    if (user.trim() === "admin" && pass === "admin") onLogin(role);
-    else setErr("Invalid credentials — hint: admin / admin (demo)");
+    const c = CREDENTIALS[role];
+    if (c && user.trim() === c.user && pass === c.pass) onLogin(role, c.user);
+    else setErr(`Invalid credentials for ${role}.`);
   };
 
   const roleCard = (r, Icon, title, sub) => (
@@ -1243,6 +1366,7 @@ function Landing({ onLogin, theme, setTheme }) {
       <header style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 28px" }}>
         <SociMark size={30} />
         <span className="serif" style={{ fontSize: 20, fontWeight: 800, letterSpacing: "0.01em" }}>SociAI</span>
+        <Badge variant="default" size="xs">{APP_VERSION}</Badge>
         <div style={{ flex: 1 }} />
         <button onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))}
           style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, padding: "6px 8px",
@@ -1287,16 +1411,13 @@ function Landing({ onLogin, theme, setTheme }) {
                   <div style={{ fontSize: 11, fontWeight: 600, color: "var(--muted-foreground)", marginBottom: 4 }}>{label}</div>
                   <input type={type} value={val} onChange={e => { set(e.target.value); setErr(""); }}
                     onKeyDown={e => e.key === "Enter" && tryLogin()}
-                    placeholder={label === "Username" ? "admin" : "••••"}
+                    placeholder={label === "Username" ? role : "••••"}
                     style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8,
                       padding: "8px 10px", fontSize: 13, color: "var(--foreground)", fontFamily: "inherit", outline: "none" }} />
                 </div>
               ))}
               {err && <div style={{ fontSize: 11.5, color: "var(--destructive)", marginBottom: 8 }}>{err}</div>}
               <Btn variant="primary" size="md" onClick={tryLogin} style={{ width: "100%", justifyContent: "center" }}>Sign in</Btn>
-              <div style={{ fontSize: 10.5, color: "var(--muted-foreground)", marginTop: 8, textAlign: "center" }}>
-                Demo credentials: <strong>admin / admin</strong>
-              </div>
             </div>
           )}
         </div>
@@ -1321,6 +1442,13 @@ export default function App() {
   const [lectureId, setLectureId] = useState(null); // full-page lecture reader
   const [search, setSearch] = useState("");
   const [quizResults, setQuizResults] = useState({});
+  const [userMenu, setUserMenu] = useState(false);
+  const [profile, setProfile] = useState({
+    displayName: "",
+    email: "",
+    bio: "",
+  });
+  const [activityLog, setActivityLog] = useState([]);
 
   const isTeacher = session?.role === "teacher";
   const selected = SESSIONS.find(s => s.id === selectedId) || null;
@@ -1339,21 +1467,38 @@ export default function App() {
   const doneCount = Object.keys(quizResults).length;
   const totalScore = Object.values(quizResults).reduce((s, r) => s + r.score, 0);
   const avgPct = doneCount ? Math.round((totalScore / (doneCount * 3)) * 100) : 0;
+  const gam = computeGamification(quizResults);
   const semDone = n => SESSIONS.filter(s => s.sem === n && quizResults[s.id]).length;
 
-  const onFinish = (id, result) => setQuizResults(r => ({ ...r, [id]: result }));
+  const onFinish = (id, result) => {
+    setQuizResults(r => ({ ...r, [id]: result }));
+    const s = SESSIONS.find(x => x.id === id);
+    setActivityLog(l => [{
+      ts: Date.now(),
+      kind: "quiz",
+      classNum: s?.num,
+      title: s?.title || "",
+      score: result.score,
+      total: 3,
+    }, ...l].slice(0, 50));
+  };
   const openSession = (s, tab = "details") => { setSelectedId(s.id); setCtxTab(tab); setCtxOpen(true); };
   const openLecture = s => { setLectureId(s.id); setSelectedId(s.id); setActiveNav(s.sem === 1 ? "s1" : "s2"); };
 
-  /* ── URL slug routing (hash-based, deep-linkable) ── */
+  /* ── URL slug routing (pathname-based, deep-linkable, no hash) ── */
   const findBySlug = (slug) => SESSIONS.find(s => slugify(s.title) === slug);
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const applyHash = () => {
-      const h = window.location.hash.replace(/^#\/?/, "");
-      if (!h) return;
-      const [top, arg, extra] = h.split("/");
-      if (["dashboard", "s1", "s2", "diagrams", "book", "scroller", "exams"].includes(top)) {
+    const applyPath = () => {
+      const raw = window.location.pathname.replace(/^\/+|\/+$/g, "");
+      if (!raw) return;
+      const parts = raw.split("/");
+      // if we're inside /apps/<slug>/, strip that prefix so the sub-path routes
+      let idx = 0;
+      if (parts[0] === "apps" && parts[1]) idx = 2;
+      const [top, arg, extra] = [parts[idx], parts[idx + 1], parts[idx + 2]];
+      if (!top) return;
+      if (["dashboard", "s1", "s2", "diagrams", "book", "scroller", "exams", "lectures", "user"].includes(top)) {
         setActiveNav(top); setLectureId(null);
       } else if (top === "lecture" && arg) {
         const s = findBySlug(arg);
@@ -1369,21 +1514,26 @@ export default function App() {
         setTimeout(() => { const el = document.getElementById("exam-" + arg); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
       }
     };
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
-    return () => window.removeEventListener("hashchange", applyHash);
+    applyPath();
+    window.addEventListener("popstate", applyPath);
+    return () => window.removeEventListener("popstate", applyPath);
   }, []);
   useEffect(() => {
     if (typeof window === "undefined") return;
-    let target = "#/" + activeNav;
+    // Preserve mount prefix (/, /apps/sociai-v2-2/, etc.)
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+    let prefix = "/";
+    if (pathParts[0] === "apps" && pathParts[1]) prefix = `/apps/${pathParts[1]}/`;
+    let sub = activeNav;
     if (lectureId) {
       const s = SESSIONS.find(x => x.id === lectureId);
-      if (s) target = "#/lecture/" + slugify(s.title);
+      if (s) sub = "lecture/" + slugify(s.title);
     } else if (selectedId && (activeNav === "s1" || activeNav === "s2")) {
       const s = SESSIONS.find(x => x.id === selectedId);
-      if (s) target = "#/class/" + slugify(s.title) + (ctxTab === "quiz" ? "/quiz" : "");
+      if (s) sub = "class/" + slugify(s.title) + (ctxTab === "quiz" ? "/quiz" : "");
     }
-    if (window.location.hash !== target) history.replaceState(null, "", target);
+    const target = (prefix + sub).replace(/\/+/g, "/").replace(/\/$/, "") || "/";
+    if (window.location.pathname !== target) history.replaceState(null, "", target);
   }, [activeNav, lectureId, selectedId, ctxTab]);
   const statusOf = s => quizResults[s.id] ? (quizResults[s.id].score === 3 ? "Perfect" : "Done") : "To do";
   const statusVariant = s => quizResults[s.id] ? (quizResults[s.id].score === 3 ? "success" : "info") : "default";
@@ -1393,7 +1543,7 @@ export default function App() {
       <>
         <style>{TOKENS}</style>
         <div data-theme={theme}>
-          <Landing theme={theme} setTheme={setTheme} onLogin={role => setSession({ role })} />
+          <Landing theme={theme} setTheme={setTheme} onLogin={(role, username) => setSession({ role, username })} />
         </div>
       </>
     );
@@ -1763,6 +1913,215 @@ export default function App() {
     </div>
   );
 
+  const UserView = () => {
+    const [edit, setEdit] = useState(false);
+    const [draft, setDraft] = useState(profile);
+    useEffect(() => setDraft(profile), [profile]);
+    const save = () => { setProfile(draft); setEdit(false); };
+    const displayName = profile.displayName || session?.username || "user";
+    const initials = displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+    const fmtTs = (t) => new Date(t).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+    return (
+      <div style={{ padding: 20, maxWidth: 900, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
+          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "var(--accent)", color: "var(--accent-foreground)",
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 800 }}>
+            {initials}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div className="serif" style={{ fontSize: 22, fontWeight: 800 }}>{displayName}</div>
+            <div style={{ fontSize: 12, color: "var(--muted-foreground)", marginTop: 2 }}>
+              @{session?.username || "user"} · <span style={{ textTransform: "capitalize" }}>{session?.role || "student"}</span>
+              {profile.email && <> · {profile.email}</>}
+            </div>
+            {profile.bio && <div style={{ fontSize: 12.5, marginTop: 8, color: "var(--secondary-foreground)" }}>{profile.bio}</div>}
+          </div>
+          <Btn variant={edit ? "primary" : "secondary"} size="sm" onClick={() => edit ? save() : setEdit(true)}>
+            {edit ? <><Save size={13} /> Save</> : <><Edit3 size={13} /> Edit profile</>}
+          </Btn>
+        </div>
+
+        {edit && (
+          <div style={{ background: "var(--card)", border: "1px solid var(--primary)", borderRadius: 14, padding: 20 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Edit profile</div>
+            {[
+              { k: "displayName", label: "Display name", type: "text", ph: "Jane Doe" },
+              { k: "email", label: "Email", type: "email", ph: "jane@example.com" },
+            ].map(f => (
+              <div key={f.k} style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "var(--muted-foreground)", marginBottom: 4 }}>{f.label}</div>
+                <input type={f.type} value={draft[f.k] || ""} onChange={e => setDraft(d => ({ ...d, [f.k]: e.target.value }))} placeholder={f.ph}
+                  style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8,
+                    padding: "8px 10px", fontSize: 13, color: "var(--foreground)", fontFamily: "inherit", outline: "none" }} />
+              </div>
+            ))}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--muted-foreground)", marginBottom: 4 }}>Bio</div>
+              <textarea value={draft.bio || ""} onChange={e => setDraft(d => ({ ...d, bio: e.target.value }))} rows={3}
+                placeholder="A sentence about your interest in the sociology of AI…"
+                style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8,
+                  padding: "8px 10px", fontSize: 13, color: "var(--foreground)", fontFamily: "inherit", outline: "none", resize: "vertical" }} />
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <Btn variant="ghost" size="sm" onClick={() => { setDraft(profile); setEdit(false); }}>Cancel</Btn>
+              <Btn variant="primary" size="sm" onClick={save}><Save size={13} /> Save</Btn>
+            </div>
+          </div>
+        )}
+
+        {/* Gamification card */}
+        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <Trophy size={18} style={{ color: "var(--primary)" }} />
+            <div className="serif" style={{ fontSize: 18, fontWeight: 800 }}>Progress</div>
+            <div style={{ flex: 1 }} />
+            <Badge variant="primary" size="sm">Level {gam.level} · {gam.title}</Badge>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 14 }}>
+            <div style={{ background: "var(--surface-2)", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontSize: 10, color: "var(--muted-foreground)", fontWeight: 700, letterSpacing: "0.06em" }}>POINTS</div>
+              <div className="serif" style={{ fontSize: 28, fontWeight: 800, color: "var(--primary)" }}>{gam.points}</div>
+              <div style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>of 780 possible</div>
+            </div>
+            <div style={{ background: "var(--surface-2)", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontSize: 10, color: "var(--muted-foreground)", fontWeight: 700, letterSpacing: "0.06em" }}>QUIZZES</div>
+              <div className="serif" style={{ fontSize: 28, fontWeight: 800, color: "var(--primary)" }}>{doneCount}/26</div>
+              <div style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>avg {avgPct}%</div>
+            </div>
+            <div style={{ background: "var(--surface-2)", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontSize: 10, color: "var(--muted-foreground)", fontWeight: 700, letterSpacing: "0.06em" }}>NEXT LEVEL</div>
+              <div className="serif" style={{ fontSize: 28, fontWeight: 800, color: "var(--primary)" }}>{gam.next ? `${gam.next.min - gam.points}` : "★"}</div>
+              <div style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>{gam.next ? `pts to ${gam.next.title}` : "max level"}</div>
+            </div>
+          </div>
+          {/* Level ladder */}
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${LEVELS.length}, 1fr)`, gap: 6 }}>
+            {LEVELS.map(l => {
+              const reached = gam.points >= l.min;
+              const current = gam.level === l.n;
+              return (
+                <div key={l.n} style={{ padding: "10px 8px", borderRadius: 8, textAlign: "center",
+                  background: current ? "var(--accent)" : reached ? "var(--surface-2)" : "var(--surface-1)",
+                  border: `1px solid ${current ? "var(--primary)" : "var(--border)"}`,
+                  opacity: reached ? 1 : 0.55 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted-foreground)" }}>LVL {l.n}</div>
+                  <div style={{ fontWeight: 700, fontSize: 12, color: current ? "var(--accent-foreground)" : "var(--foreground)" }}>{l.title}</div>
+                  <div style={{ fontSize: 10, color: "var(--muted-foreground)", marginTop: 2 }}>{l.min}+ pts</div>
+                  {reached && <Check size={12} style={{ marginTop: 3, color: "var(--success)" }} />}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Activity log */}
+        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <TrendingUp size={18} style={{ color: "var(--primary)" }} />
+            <div className="serif" style={{ fontSize: 18, fontWeight: 800 }}>Activity log</div>
+            <div style={{ flex: 1 }} />
+            <Badge variant="default" size="xs">{activityLog.length} entries</Badge>
+          </div>
+          {activityLog.length === 0 ? (
+            <div style={{ padding: 20, textAlign: "center", color: "var(--muted-foreground)", fontSize: 12.5 }}>
+              No activity yet. Take a class quiz to earn your first 10-30 points.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {activityLog.map((a, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, background: "var(--surface-2)" }}>
+                  {a.score === a.total
+                    ? <Zap size={14} style={{ color: "var(--success)", flexShrink: 0 }} />
+                    : <ListChecks size={14} style={{ color: "var(--primary)", flexShrink: 0 }} />}
+                  <div style={{ flex: 1, fontSize: 12 }}>
+                    <span style={{ fontWeight: 700 }}>Class {a.classNum}</span>
+                    <span style={{ color: "var(--muted-foreground)" }}> · quiz {a.score}/{a.total} · {a.score * 10} pts</span>
+                    <div style={{ fontSize: 11, color: "var(--muted-foreground)" }}>{a.title}</div>
+                  </div>
+                  <span style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>{fmtTs(a.ts)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const LecturesView = () => {
+    const [sf, setSf] = useState("all");
+    const [readingFilter, setRf] = useState("all");
+    const [statusF, setStF] = useState("all");
+    const list = SESSIONS
+      .filter(s => sf === "all" || (sf === "s1" ? s.sem === 1 : s.sem === 2))
+      .filter(s => readingFilter === "all" || s.reading.kind === readingFilter)
+      .filter(s => statusF === "all" || (statusF === "done" ? !!quizResults[s.id] : !quizResults[s.id]));
+
+    return (
+      <div style={{ padding: 20, maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ marginBottom: 12 }}>
+          <div className="serif" style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>Lectures</div>
+          <div style={{ fontSize: 13, color: "var(--muted-foreground)" }}>
+            The full 26-class lecture index across both semesters — richer than per-semester views, with
+            reading-type + status filters + a search of readings.
+          </div>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+          {[
+            { g: "Semester", v: sf, set: setSf, opts: [["all", `All · ${SESSIONS.length}`], ["s1", `S1 · ${SESSIONS.filter(s => s.sem === 1).length}`], ["s2", `S2 · ${SESSIONS.filter(s => s.sem === 2).length}`]] },
+            { g: "Reading", v: readingFilter, set: setRf, opts: [["all", "Both"], ["paper", "Papers"], ["press", "Press"]] },
+            { g: "Status", v: statusF, set: setStF, opts: [["all", "All"], ["done", `Done · ${doneCount}`], ["todo", `To do · ${26 - doneCount}`]] },
+          ].map(grp => (
+            <div key={grp.g} style={{ display: "flex", alignItems: "center", gap: 4, background: "var(--surface-1)", border: "1px solid var(--border-subtle)", padding: 3, borderRadius: 999 }}>
+              <span style={{ fontSize: 10, color: "var(--muted-foreground)", padding: "0 8px" }}>{grp.g}:</span>
+              {grp.opts.map(([id, lbl]) => (
+                <button key={id} onClick={() => grp.set(id)}
+                  style={{ padding: "5px 10px", borderRadius: 999, border: "none", fontFamily: "inherit", fontSize: 11, fontWeight: 600,
+                    cursor: "pointer", background: grp.v === id ? "var(--accent)" : "transparent",
+                    color: grp.v === id ? "var(--accent-foreground)" : "var(--muted-foreground)" }}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "40px 1fr 60px 130px 90px 100px", gap: 8, fontSize: 10.5,
+            fontWeight: 700, color: "var(--muted-foreground)", padding: "4px 8px 8px", borderBottom: "1px solid var(--border-subtle)", letterSpacing: "0.06em" }}>
+            <span>#</span><span>LECTURE</span><span>SEM</span><span>READING</span><span>DIAGRAM</span><span>STATUS</span>
+          </div>
+          {list.map(s => {
+            const d = DIAGRAMS[s.id];
+            return (
+              <div key={s.id} className="hoverable" onClick={() => openLecture(s)}
+                style={{ display: "grid", gridTemplateColumns: "40px 1fr 60px 130px 90px 100px", gap: 8, alignItems: "center",
+                  padding: "8px 8px", cursor: "pointer", borderRadius: 6, fontSize: 12 }}>
+                <span style={{ color: "var(--muted-foreground)", fontWeight: 700 }}>{s.num}</span>
+                <span>
+                  <span style={{ marginRight: 6 }}>{s.thumb}</span>
+                  <span style={{ fontWeight: 600 }}>{s.title}</span>
+                </span>
+                <Badge variant="default" size="xs">S{s.sem}</Badge>
+                <Badge variant={s.reading.kind === "paper" ? "info" : "warning"} size="xs">
+                  {s.reading.kind === "paper" ? "Paper" : "Press"}
+                </Badge>
+                <span style={{ fontSize: 10.5, color: "var(--muted-foreground)", textTransform: "uppercase", fontWeight: 700 }}>
+                  {d ? d.kind : "—"}
+                </span>
+                <Badge variant={statusVariant(s)} size="xs">{statusOf(s)}</Badge>
+              </div>
+            );
+          })}
+          {list.length === 0 && (
+            <div style={{ padding: 24, textAlign: "center", color: "var(--muted-foreground)", fontSize: 13 }}>
+              No lectures match those filters.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const ExamsView = () => (
     <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16, maxWidth: 860, margin: "0 auto" }}>
       <div className="serif" style={{ fontSize: 22, fontWeight: 800 }}>Exams · 2026/2027</div>
@@ -1860,6 +2219,7 @@ export default function App() {
             <div className="serif" style={{ fontWeight: 800, fontSize: 16, letterSpacing: "0.01em" }}>SociAI</div>
             <div style={{ fontSize: 10, color: "var(--muted-foreground)" }}>Sociology of AI · La Sorbonne · L3 · 2026/27</div>
           </div>
+          <Badge variant="default" size="xs">{APP_VERSION}</Badge>
           <Badge variant={isTeacher ? "warning" : "primary"} size="xs">{isTeacher ? "Teacher" : "Student"}</Badge>
           <div style={{ flex: 1 }} />
           <div style={{ position: "relative", width: 210 }}>
@@ -1873,9 +2233,49 @@ export default function App() {
               cursor: "pointer", color: "var(--foreground)", display: "flex" }}>
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
-          <Btn variant="ghost" size="xs" onClick={() => { setSession(null); setActiveNav("dashboard"); setSelectedId(null); setLectureId(null); }}>
-            <LogOut size={13} /> Log out
-          </Btn>
+          {/* User chip + admin dropdown to switch users */}
+          <div style={{ position: "relative" }}>
+            <button onClick={() => setUserMenu(v => !v)}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--surface-2)", border: "1px solid var(--border)",
+                borderRadius: 999, padding: "5px 10px 5px 5px", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12 }}>
+              <span style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", color: "var(--accent-foreground)",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
+                {(session?.username || "?").slice(0, 1).toUpperCase()}
+              </span>
+              <span style={{ fontWeight: 600 }}>{session?.username || "user"}</span>
+              <ChevronRight size={12} style={{ transform: userMenu ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.15s" }} />
+            </button>
+            {userMenu && (
+              <div style={{ position: "absolute", top: "100%", right: 0, marginTop: 6, minWidth: 200, background: "var(--card)",
+                border: "1px solid var(--border)", borderRadius: 8, padding: 6, zIndex: 40, boxShadow: "var(--shadow-lg)" }}>
+                <div style={{ padding: "6px 10px", fontSize: 10, fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.06em" }}>
+                  SWITCH USER
+                </div>
+                {[
+                  { role: "student", username: "student", label: "student · read + quiz" },
+                  { role: "teacher", username: "teacher", label: "teacher · + answer keys" },
+                ].map(u => (
+                  <button key={u.role} onClick={() => { setSession(u); setUserMenu(false); }}
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: session?.role === u.role ? "var(--accent)" : "transparent",
+                      border: "none", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
+                    {u.role === "teacher" ? <Users size={13} /> : <User size={13} />} {u.label}
+                    {session?.role === u.role && <Check size={13} style={{ marginLeft: "auto", color: "var(--primary)" }} />}
+                  </button>
+                ))}
+                <div style={{ borderTop: "1px solid var(--border-subtle)", margin: "6px 0" }} />
+                <button onClick={() => { setUserMenu(false); setActiveNav("user"); setSelectedId(null); setLectureId(null); }}
+                  style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: "transparent",
+                    border: "none", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
+                  <User size={13} /> My profile
+                </button>
+                <button onClick={() => { setUserMenu(false); setSession(null); setActiveNav("dashboard"); setSelectedId(null); setLectureId(null); }}
+                  style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: "transparent",
+                    border: "none", cursor: "pointer", color: "var(--destructive)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
+                  <LogOut size={13} /> Log out
+                </button>
+              </div>
+            )}
+          </div>
         </header>
 
         {/* ── BODY ── */}
@@ -1921,6 +2321,8 @@ export default function App() {
                 {lecture ? `Lecture · Class ${lecture.num}` :
                   activeNav === "dashboard" ? "Overview" : activeNav === "exams" ? "Exams" : activeNav === "book" ? "The Course Book" :
                   activeNav === "diagrams" ? "Diagrams" :
+                  activeNav === "lectures" ? "Lectures" :
+                  activeNav === "user" ? "Profile" :
                   activeNav === "scroller" ? "Lecture Scroller" :
                   `Semester ${sem} — ${sem === 1 ? "Machines, Markets & Media" : "Power, Ethics & Futures"}`}
               </span>
@@ -1949,10 +2351,12 @@ export default function App() {
               {lecture ? <LectureReader /> : (
                 <>
                   {activeNav === "dashboard" && <Dashboard />}
+                  {activeNav === "lectures" && <LecturesView />}
                   {activeNav === "diagrams" && <DiagramsView />}
                   {activeNav === "exams" && <ExamsView />}
                   {activeNav === "book" && <BookView />}
                   {activeNav === "scroller" && <ScrollerView />}
+                  {activeNav === "user" && <UserView />}
                   {showSessionsUI && (viewMode === "tiles" ? <TilesView /> : viewMode === "table" ? <TableView /> : <ScrollView />)}
                 </>
               )}
@@ -2031,8 +2435,8 @@ export default function App() {
           )}
         </div>
 
-        {/* ── FOOTER ── */}
-        <footer style={{ height: 40, flexShrink: 0, display: "flex", alignItems: "center", gap: 16, padding: "0 16px",
+        {/* ── FOOTER (sticky, gamified) ── */}
+        <footer style={{ height: 44, flexShrink: 0, display: "flex", alignItems: "center", gap: 14, padding: "0 16px",
           background: "var(--secondary)", borderTop: "1px solid var(--border)", fontSize: 11, color: "var(--muted-foreground)", zIndex: 30 }}>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--success)" }} />
@@ -2046,9 +2450,26 @@ export default function App() {
               showSessionsUI ? `Showing ${filtered.length} of 13 classes · Semester ${sem}` :
               activeNav === "book" ? "26 chapters · 260 sections · full course" :
               activeNav === "diagrams" ? "26 editorial diagrams · 7 kinds · one per class" :
+              activeNav === "lectures" ? "All 26 lectures · full index" :
+              activeNav === "user" ? "Your profile · progress · logs" :
               activeNav === "scroller" ? "286 slides · one section at a time · scroll ↓" : "Sociology L3 · 26 × 1h30 · 10 sections per lecture"}
           </span>
-          <span>SociAI v2.1 · La Sorbonne 2026/27</span>
+          {/* Gamification chip — clickable, opens user page */}
+          <button onClick={() => { setActiveNav("user"); setLectureId(null); setSelectedId(null); }}
+            title={`${gam.points} pts · Level ${gam.level} — ${gam.title}. Click for profile.`}
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--card)", border: `1px solid var(--primary)`,
+              borderRadius: 999, padding: "3px 10px 3px 4px", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 11 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, borderRadius: "50%",
+              background: "var(--primary)", color: "#fff", fontWeight: 800, fontSize: 10 }}>
+              L{gam.level}
+            </span>
+            <span style={{ fontWeight: 700, color: "var(--foreground)" }}>{gam.points} pts</span>
+            <span style={{ color: "var(--muted-foreground)" }}>· {gam.title}</span>
+            <span style={{ width: 60, height: 5, borderRadius: 3, background: "var(--surface-2)", overflow: "hidden", marginLeft: 4 }}>
+              <span style={{ display: "block", width: `${gam.progress}%`, height: "100%", background: "var(--primary)" }} />
+            </span>
+          </button>
+          <span style={{ color: "var(--muted-foreground)" }}>SociAI {APP_VERSION} · La Sorbonne 2026/27</span>
         </footer>
       </div>
     </>
