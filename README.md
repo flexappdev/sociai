@@ -7,7 +7,7 @@ layer for the AI-native web. Part of `~/APPS/`.
 - **Local dev**: `npm run dev` → http://localhost:17005
 - **Repo**: https://github.com/flexappdev/sociai
 
-## Current version — v2.3 (gamified · path-routed · full profile)
+## Current version — v2.4 (search · tooltips · teacher admin)
 
 Canonical app: [`apps/sociai-v2-2.jsx`](apps/sociai-v2-2.jsx) — a single-file
 React SPA mounted at `/` via Next.js catch-all route `[[...slug]]`. Every page
@@ -25,7 +25,12 @@ is a real URL (no `#` fragment).
 | **26 hero diagrams** | Inline SVG (flow, cycle, tree, compare, layers, pyramid, matrix) — one per class. |
 | **Per-section diagrams** | ~40 additional diagrams appear at the bottom of individual lecture sections where they add signal. |
 | **Diagrams gallery** | `/diagrams` — all 26 hero diagrams in one filterable grid (by semester or by kind). |
-| **Glossary** | `/glossary` — 50 curated keywords with definitions. Same 3 views as classes (tiles / table / scroll), plus search + tag filter. Click any term to jump to the class where it&rsquo;s introduced. |
+| **Glossary** | `/glossary` — 100 curated keywords with definitions (sociological + technical: AI, LLM, RLHF, GPU, transformer, RAG, MCP, AGI, etc). Same 3 views as classes (tiles / table / scroll), search + tag filter, click-to-jump-to-lecture. |
+| **Global search** | `Ctrl+S` (or `Cmd+S`, or `/`) opens a search modal with autosuggest across glossary + lectures + nav pages. `↑↓` navigate, `Enter` open, `Esc` close. |
+| **Auto-annotated text** | Lecture paragraphs auto-underline every glossary term with a native-tooltip definition — hover any dotted underline for the full explanation. |
+| **Tooltips everywhere** | Every header, sidebar, footer, and nav button has a `title` tooltip explaining what it does. Btn primitive accepts a `title` prop. |
+| **Teacher-only user dropdown** | Only teachers get the switch-user dropdown. Students get a plain name-chip + logout. |
+| **Teacher admin — Students page** | `/students` (teacher-only) — 42-student cohort with per-row progress bar, quiz-avg badge, at-risk flags, and editable private notes. Filter by top/low/at-risk. |
 | **Exam runner** | 4 exams (2 midterms + 2 finals) with **functional practice**: pooled MCQs + live countdown timer + essay pane + score % + missed-question review. |
 | **Book / Scroller** | All 26 chapters as a scrollable book; 286 vertical slides in the scroller. |
 | **Teacher mode** | Answer keys + marking rubrics visible on toggle. |
@@ -38,7 +43,8 @@ is a real URL (no `#` fragment).
 /lectures                  all-lecture index with filters
 /s1  /s2                   semester grid (tiles/table/scroll views)
 /diagrams                  gallery of all 26 hero diagrams
-/glossary                  50 curated keywords with definitions
+/glossary                  100 curated keywords with definitions
+/students                  cohort dashboard (teacher only)
 /book                      the whole course as a book
 /scroller                  vertical slide reader
 /exams                     all 4 exams

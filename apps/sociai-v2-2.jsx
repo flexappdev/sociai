@@ -89,7 +89,7 @@ function Badge({ children, variant = "default", size = "sm" }) {
   );
 }
 
-function Btn({ children, variant = "primary", size = "sm", onClick, disabled, style = {} }) {
+function Btn({ children, variant = "primary", size = "sm", onClick, disabled, style = {}, title, ...rest }) {
   const sizes = { xs: { padding: "4px 10px", fontSize: 11 }, sm: { padding: "7px 14px", fontSize: 12 }, md: { padding: "10px 20px", fontSize: 13 } };
   const variants = {
     primary: { background: "var(--primary)", color: "var(--primary-foreground)" },
@@ -97,7 +97,7 @@ function Btn({ children, variant = "primary", size = "sm", onClick, disabled, st
     ghost: { background: "transparent", color: "var(--muted-foreground)" },
   };
   return (
-    <button onClick={disabled ? undefined : onClick} style={{
+    <button onClick={disabled ? undefined : onClick} title={title} {...rest} style={{
       cursor: disabled ? "not-allowed" : "pointer", borderRadius: "var(--radius)", fontWeight: 600,
       display: "inline-flex", alignItems: "center", gap: 6, border: "none", transition: "all .15s",
       fontFamily: "inherit", opacity: disabled ? 0.5 : 1, ...sizes[size], ...variants[variant], ...style,
@@ -230,6 +230,57 @@ const SECTION_DIAGRAMS = {
     3: { kind: "pyramid", focus: "5 A's of AI Society", labels: ["Automation", "Augmentation", "Alignment", "Autonomy", "Accountability"] },
   },
 };
+
+/* ══════════ Glossary lookup + AnnotateGlossary ══════════
+   Scans a text string for GLOSSARY term matches and wraps them in <abbr title="...">,
+   giving native browser tooltips. Case-insensitive whole-word match, longest-first.
+   Index is built lazily on first call so it can safely reference GLOSSARY declared later. */
+let GLOSSARY_INDEX = null;
+function getGlossaryIndex() {
+  if (GLOSSARY_INDEX) return GLOSSARY_INDEX;
+  GLOSSARY_INDEX = GLOSSARY.slice()
+    .sort((a, b) => b.term.length - a.term.length)
+    .map(g => ({
+      ...g,
+      re: new RegExp(`\\b${g.term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi"),
+    }));
+  return GLOSSARY_INDEX;
+}
+
+function AnnotateGlossary({ text }) {
+  if (!text || typeof text !== "string") return text;
+  const matches = [];
+  getGlossaryIndex().forEach(g => {
+    const re = new RegExp(g.re.source, "gi");
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      matches.push({ start: m.index, end: m.index + m[0].length, text: m[0], term: g.term, def: g.def });
+    }
+  });
+  matches.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+  const filtered = [];
+  let cursor = 0;
+  for (const m of matches) {
+    if (m.start < cursor) continue;
+    filtered.push(m);
+    cursor = m.end;
+  }
+  if (filtered.length === 0) return text;
+  const out = [];
+  let i = 0;
+  filtered.forEach((m, idx) => {
+    if (m.start > i) out.push(text.slice(i, m.start));
+    out.push(
+      <abbr key={"g" + idx + "-" + m.start} title={`${m.term} — ${m.def}`}
+        style={{ textDecoration: "underline dotted", textUnderlineOffset: 3, cursor: "help", textDecorationColor: "var(--primary)", textDecorationThickness: 1 }}>
+        {m.text}
+      </abbr>
+    );
+    i = m.end;
+  });
+  if (i < text.length) out.push(text.slice(i));
+  return <>{out}</>;
+}
 
 /* ══════════ Diagram component ══════════ */
 function Diagram({ spec, compact }) {
@@ -1015,16 +1066,17 @@ const EXAMS = [
 ];
 
 const NAV = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "lectures", label: "Lectures", icon: Mic },
-  { id: "s1", label: "Semester 1", icon: BookOpen },
-  { id: "s2", label: "Semester 2", icon: GraduationCap },
-  { id: "diagrams", label: "Diagrams", icon: BarChart3 },
-  { id: "glossary", label: "Glossary", icon: Lightbulb },
-  { id: "book", label: "Book", icon: BookMarked },
-  { id: "scroller", label: "Scroller", icon: Film },
-  { id: "exams", label: "Exams", icon: FileText },
-  { id: "user", label: "Profile", icon: User },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, tip: "Overview + progress" },
+  { id: "lectures", label: "Lectures", icon: Mic, tip: "All 26 lectures with filters" },
+  { id: "s1", label: "Semester 1", icon: BookOpen, tip: "13 classes on Machines, Markets & Media" },
+  { id: "s2", label: "Semester 2", icon: GraduationCap, tip: "13 classes on Power, Ethics & Futures" },
+  { id: "diagrams", label: "Diagrams", icon: BarChart3, tip: "Gallery of all 26 hero diagrams" },
+  { id: "glossary", label: "Glossary", icon: Lightbulb, tip: "Keyword definitions (Ctrl+S to search)" },
+  { id: "book", label: "Book", icon: BookMarked, tip: "The whole course as a book" },
+  { id: "scroller", label: "Scroller", icon: Film, tip: "One section per vertical slide" },
+  { id: "exams", label: "Exams", icon: FileText, tip: "Practice exams with timer" },
+  { id: "user", label: "Profile", icon: User, tip: "Your points, level, activity log" },
+  { id: "students", label: "Students", icon: Users, tip: "Cohort dashboard (teachers only)", teacherOnly: true },
 ];
 
 /* ══════════ GLOSSARY — 50 curated keywords with definitions ══════════ */
@@ -1080,6 +1132,57 @@ const GLOSSARY = [
   { term: "Automation", cls: 26, tag: "futures", def: "One of the '5 A's' — the substitution of human labour by machines. The sociological question is distributive: who benefits, who bears the transition cost." },
   { term: "Augmentation", cls: 26, tag: "futures", def: "The pairing of humans with AI tools to raise capability. The more optimistic frame than displacement — but demands re-skilling and access, both unequal." },
   { term: "Accountability", cls: 26, tag: "futures", def: "The final 'A' — the design of institutions that allow decisions to be explained, contested, and reversed. Without it, the other four A's are engineering, not politics." },
+  /* ── Technical vocabulary (added in v2.4) ── */
+  { term: "AI", cls: 1, tag: "ml", def: "Artificial Intelligence — the umbrella label for computer systems that perform tasks associated with human cognition (perception, language, planning, decision). Sociologically, more a moving marketing frontier than a fixed technical category." },
+  { term: "Machine Learning (ML)", cls: 3, tag: "ml", def: "The subset of AI where systems improve at a task by exposure to data rather than by hand-coded rules. Encompasses supervised, unsupervised, and reinforcement paradigms." },
+  { term: "Neural network", cls: 3, tag: "ml", def: "A model composed of layers of connected artificial 'neurons' whose weights are adjusted during training. 'Deep' means many stacked layers — the workhorse behind vision, language, and speech models." },
+  { term: "Transformer", cls: 3, tag: "ml", def: "The 2017 architecture (Vaswani et al.) that made modern LLMs possible. Its attention mechanism lets each token weigh every other token — displacing RNNs by parallelising sequence learning." },
+  { term: "Attention (mechanism)", cls: 3, tag: "ml", def: "The core operation of transformers: for each output position, compute a weighted mix over input positions. Makes long-range dependencies tractable and is the 'attention' in 'Attention Is All You Need'." },
+  { term: "LLM", cls: 4, tag: "ml", def: "Large Language Model — a transformer trained on internet-scale text to predict the next token. Sociologically consequential because the same model is now general-purpose infrastructure for writing, code, and reasoning." },
+  { term: "Foundation model", cls: 4, tag: "ml", def: "Bommasani et al.'s term for a model (usually LLM/vision-language) pretrained on broad data and adapted to many downstream tasks. Centralises capability and risk in a few labs." },
+  { term: "Pretraining", cls: 4, tag: "ml", def: "The initial phase of training a foundation model on massive unlabelled data (predict-next-token). Where most of the compute and most of the world knowledge get absorbed." },
+  { term: "Fine-tuning", cls: 4, tag: "ml", def: "Adapting a pretrained model with targeted labelled data or feedback to specialise it (medical, legal, chat). Cheap compared to pretraining, which is why base-model gatekeepers hold power." },
+  { term: "Prompt", cls: 4, tag: "ml", def: "The input text (and increasingly images) given to an LLM. 'Prompt engineering' has become a labour category — writing prompts that reliably elicit useful behaviour." },
+  { term: "Prompt injection", cls: 4, tag: "safety", def: "An attack where instructions inside untrusted content (a webpage, a document) hijack an LLM's behaviour. The insider-threat problem of agentic systems." },
+  { term: "Token", cls: 4, tag: "ml", def: "The atomic unit an LLM processes — roughly a word-piece. Model pricing, context windows, and speed are all counted in tokens rather than characters or words." },
+  { term: "Context window", cls: 4, tag: "ml", def: "The maximum number of tokens a model can attend to at once. 4k in 2022, 1M+ in 2026 — bigger windows expand what one call can do but also carbon cost and latency." },
+  { term: "Embedding", cls: 3, tag: "ml", def: "A dense numerical vector representing a word, sentence, image, or user. Underlies search, recommendation, and retrieval — meaning becomes proximity in high-dimensional space." },
+  { term: "Vector database", cls: 3, tag: "ml", def: "A database that indexes embeddings for fast similarity search (Pinecone, Weaviate, pgvector). The infrastructure layer under RAG and semantic search." },
+  { term: "RAG", cls: 4, tag: "ml", def: "Retrieval-Augmented Generation — the pattern of retrieving relevant chunks from a vector store and pasting them into an LLM prompt. Reduces hallucination and lets closed corpora talk." },
+  { term: "Reinforcement Learning (RL)", cls: 3, tag: "ml", def: "The paradigm where an agent maximises cumulative reward by trial and error in an environment. Behind AlphaGo, robotics, and the RLHF step that tunes ChatGPT-class assistants." },
+  { term: "Reward hacking", cls: 14, tag: "safety", def: "When an RL agent optimises the measurable reward in ways that violate the intent behind it (a cleaning robot that hides dirt). One face of the alignment problem." },
+  { term: "Hallucination", cls: 4, tag: "ml", def: "When an LLM produces fluent, confident output that is factually wrong. A structural property of next-token prediction — not a bug that will be 'fixed' with a patch." },
+  { term: "Emergence", cls: 4, tag: "ml", def: "Capabilities that appear only above a scale threshold (in-context learning, chain-of-thought reasoning). Contested empirically; sociologically it fuels the scaling race." },
+  { term: "Scaling laws", cls: 3, tag: "ml", def: "Kaplan et al.'s empirical observation that model loss scales predictably with compute, data, and parameters. Underwrites the industrial bet on ever-larger training runs." },
+  { term: "GPU", cls: 3, tag: "capital", def: "Graphics Processing Unit — the massively parallel chip that made deep learning economically viable. NVIDIA's H100/B200 are the strategic bottleneck for training frontier models." },
+  { term: "TPU", cls: 3, tag: "capital", def: "Google's custom Tensor Processing Unit — an alternative AI accelerator, part of the vertical-integration strategy of the compute economy." },
+  { term: "Chip export controls", cls: 22, tag: "regulation", def: "US restrictions on the sale of advanced AI chips (esp. to China). Turned semiconductors into a geopolitical instrument alongside oil and rare earths." },
+  { term: "Distillation", cls: 4, tag: "ml", def: "Training a smaller 'student' model to mimic a larger 'teacher' — cheaper inference at some quality loss. How capability spreads beyond the labs that trained the frontier." },
+  { term: "Open weights", cls: 25, tag: "regulation", def: "Model checkpoints released to the public (Llama, Mistral, DeepSeek). A live regulatory debate — enable innovation and audit, or lower the bar for misuse." },
+  { term: "GAN", cls: 4, tag: "ml", def: "Generative Adversarial Network — Goodfellow's 2014 architecture pitting a generator against a discriminator. Dominant for images before diffusion took over around 2022." },
+  { term: "Diffusion model", cls: 4, tag: "ml", def: "Generative technique that learns to reverse a gradual noising process. Powers most 2023+ image and video generators (Stable Diffusion, Midjourney, Sora)." },
+  { term: "Vision-language model", cls: 4, tag: "ml", def: "A model that ingests images and text together and can describe, answer, or edit across both (GPT-4V, Gemini, Claude 3+). Merges the previously separate vision and NLP stacks." },
+  { term: "Agentic AI", cls: 14, tag: "ml", def: "AI systems that plan, use tools, and take actions across multiple steps (browsing, coding, buying). Widens both capability and risk surface — each tool is an attack vector." },
+  { term: "MCP", cls: 25, tag: "ml", def: "Model Context Protocol (2024) — an open standard for connecting LLMs to tools, data sources, and applications. The 'USB port' of the LLM ecosystem, letting agents plug into everything." },
+  { term: "Chain-of-thought", cls: 4, tag: "ml", def: "Prompting or training a model to write intermediate reasoning steps before an answer. Boosts accuracy on multi-step problems; also makes reasoning legible to auditors." },
+  { term: "Guardrails", cls: 21, tag: "safety", def: "Runtime checks (content filters, refusal policies, output validators) layered around a model to reduce harmful behaviour. Fragile in isolation; useful in defence-in-depth." },
+  { term: "Jailbreak", cls: 21, tag: "safety", def: "A user-side technique that bypasses a model's safety training via role-play, encoded instructions, or adversarial suffixes. Underlines that safety is a socio-technical problem, not just a training one." },
+  { term: "Red team", cls: 21, tag: "safety", def: "A team assigned to attack a model before release to surface unsafe behaviour. Borrowed from cybersecurity. Now a normal step in frontier-model launches." },
+  { term: "Model card", cls: 21, tag: "ethics", def: "Mitchell et al.'s proposed documentation format for ML models — intended uses, limitations, evaluation, ethical considerations. The 'nutrition label' of AI systems." },
+  { term: "Datasheet", cls: 3, tag: "ethics", def: "Gebru et al.'s complementary format for datasets — how collected, by whom, consent status, known biases. Answers the 'who is inside your data' question at scale." },
+  { term: "Differential privacy", cls: 3, tag: "safety", def: "A mathematical guarantee that individual records cannot be reidentified from aggregate outputs, by adding calibrated noise. Used in Apple/Google telemetry and increasingly in ML training." },
+  { term: "Federated learning", cls: 3, tag: "ml", def: "Training a shared model across devices without centralising raw data — each device sends model updates instead. Advertised as privacy-preserving but has its own leakage risks." },
+  { term: "Explainable AI (XAI)", cls: 2, tag: "ethics", def: "Techniques that produce human-legible reasons for ML outputs (feature attributions, saliency maps). Necessary but insufficient — an explanation without appeal is decoration." },
+  { term: "Deep fake", cls: 18, tag: "media", def: "Synonym for deepfake — AI-generated media convincingly depicting real people. Also unlocks the 'liar's dividend': plausible denial of authentic evidence." },
+  { term: "Synthetic data", cls: 3, tag: "ml", def: "Machine-generated training data (from simulators or other models). Fills gaps for rare classes; risks model collapse if it dominates the training mix." },
+  { term: "Model collapse", cls: 3, tag: "ml", def: "The degradation that occurs when models are trained on the outputs of earlier models rather than fresh human data — variance shrinks and rare knowledge disappears." },
+  { term: "AGI", cls: 26, tag: "futures", def: "Artificial General Intelligence — a hypothetical system matching or exceeding humans across essentially all cognitive tasks. Definition-contested; used commercially, politically, and philosophically to different ends." },
+  { term: "ASI", cls: 26, tag: "futures", def: "Artificial Super Intelligence — systems substantially exceeding human intelligence. Bostrom's framing; a horizon rather than a product." },
+  { term: "Existential risk", cls: 26, tag: "futures", def: "Risks that could permanently curtail humanity's long-term potential. Applied to AI by Bostrom, Russell, and others — contested in scope and probability but shaping regulation." },
+  { term: "P(doom)", cls: 26, tag: "futures", def: "Half-serious lab shorthand for one's subjective probability that AI development leads to catastrophic outcomes. Sociologically interesting as a status marker inside AI communities." },
+  { term: "Instruction tuning", cls: 4, tag: "ml", def: "Fine-tuning a base LLM to follow natural-language instructions. The step that made GPT-3 → InstructGPT/ChatGPT usable by non-experts." },
+  { term: "Zero-shot / few-shot", cls: 4, tag: "ml", def: "Zero-shot: a model performs a task from the instruction alone. Few-shot: with a handful of demonstration examples in the prompt. Both emerged as LLM scale grew." },
+  { term: "Function calling / tool use", cls: 4, tag: "ml", def: "Letting an LLM emit structured calls to external APIs (search, calendar, code execution) which return results back into the conversation. The mechanic under agentic systems." },
 ];
 
 /* Mock cohort data — teacher view only */
@@ -1108,7 +1211,9 @@ function LectureBody({ s, compact }) {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: compact ? 7 : 9 }}>
               {sec.ps.map((p, pi) => (
-                <p key={pi} style={{ fontSize: compact ? 12.5 : 13.5, lineHeight: 1.7 }}>{p}</p>
+                <p key={pi} style={{ fontSize: compact ? 12.5 : 13.5, lineHeight: 1.7 }}>
+                  <AnnotateGlossary text={p} />
+                </p>
               ))}
             </div>
             {secDia && (
@@ -1203,6 +1308,112 @@ function QuizPanel({ session, result, onFinish, isTeacher }) {
 }
 
 /* ══════════ Landing + Login ══════════ */
+/* ══════════ Global Search Modal (Ctrl/Cmd+S) ══════════
+   Searches across GLOSSARY + SESSIONS + NAV pages. Keyboard: Enter opens
+   the selected result; ↑/↓ moves selection; Esc closes. */
+function SearchModal({ open, onClose, onGlossary, onLecture, onNav }) {
+  const [q, setQ] = useState("");
+  const [sel, setSel] = useState(0);
+
+  const results = useMemo(() => {
+    if (!q.trim()) {
+      // default: curated top items
+      return [
+        ...GLOSSARY.slice(0, 6).map(g => ({ kind: "glossary", label: g.term, sub: g.def.slice(0, 90) + "…", g })),
+        ...[{ id: "diagrams", label: "Diagrams gallery" }, { id: "glossary", label: "Glossary" }, { id: "exams", label: "Exams" }, { id: "user", label: "Profile" }].map(n => ({ kind: "nav", label: n.label, sub: "/" + n.id, id: n.id })),
+      ];
+    }
+    const s = q.toLowerCase();
+    const gs = GLOSSARY.filter(g => (g.term + " " + g.def + " " + g.tag).toLowerCase().includes(s))
+      .slice(0, 12).map(g => ({ kind: "glossary", label: g.term, sub: g.def.slice(0, 90) + "…", g }));
+    const ls = SESSIONS.filter(x => (x.title + " " + x.tags.join(" ") + " " + x.desc).toLowerCase().includes(s))
+      .slice(0, 8).map(x => ({ kind: "lecture", label: `Class ${x.num} · ${x.title}`, sub: x.desc.slice(0, 90) + "…", session: x }));
+    const ns = [
+      { id: "dashboard", label: "Dashboard" }, { id: "lectures", label: "Lectures" },
+      { id: "s1", label: "Semester 1" }, { id: "s2", label: "Semester 2" },
+      { id: "diagrams", label: "Diagrams" }, { id: "glossary", label: "Glossary" },
+      { id: "book", label: "Book" }, { id: "scroller", label: "Scroller" },
+      { id: "exams", label: "Exams" }, { id: "user", label: "Profile" }, { id: "students", label: "Students (teacher)" },
+    ].filter(n => n.label.toLowerCase().includes(s)).map(n => ({ kind: "nav", label: n.label, sub: "/" + n.id, id: n.id }));
+    return [...gs, ...ls, ...ns];
+  }, [q]);
+
+  useEffect(() => { setSel(0); }, [q]);
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById("search-modal-input");
+      if (el) el.focus();
+    }, 30);
+    return () => clearTimeout(t);
+  }, [open]);
+
+  if (!open) return null;
+
+  const commit = (r) => {
+    if (!r) return;
+    if (r.kind === "glossary") onGlossary(r.g);
+    else if (r.kind === "lecture") onLecture(r.session);
+    else if (r.kind === "nav") onNav(r.id);
+    onClose();
+  };
+
+  const onKey = (e) => {
+    if (e.key === "Escape") { e.preventDefault(); onClose(); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); setSel(s => Math.min(results.length - 1, s + 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setSel(s => Math.max(0, s - 1)); }
+    else if (e.key === "Enter") { e.preventDefault(); commit(results[sel]); }
+  };
+
+  return (
+    <div onClick={onClose}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(2px)", zIndex: 100, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: "12vh" }}>
+      <div onClick={e => e.stopPropagation()}
+        style={{ width: "min(720px, 92vw)", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, boxShadow: "var(--shadow-lg)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderBottom: "1px solid var(--border)" }}>
+          <Search size={16} style={{ color: "var(--muted-foreground)" }} />
+          <input id="search-modal-input" value={q} onChange={e => setQ(e.target.value)} onKeyDown={onKey}
+            placeholder="Search glossary, lectures, pages…"
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: "inherit", fontSize: 15, color: "var(--foreground)" }} />
+          <kbd style={{ fontFamily: "ui-monospace, monospace", fontSize: 10, padding: "3px 6px", borderRadius: 4, background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--muted-foreground)" }}>Esc</kbd>
+        </div>
+        <div style={{ maxHeight: "60vh", overflowY: "auto", padding: 6 }}>
+          {results.length === 0 && (
+            <div style={{ padding: "24px 20px", textAlign: "center", color: "var(--muted-foreground)", fontSize: 13 }}>
+              No results for &ldquo;{q}&rdquo;
+            </div>
+          )}
+          {results.map((r, i) => {
+            const icon = r.kind === "glossary" ? <Lightbulb size={14} /> : r.kind === "lecture" ? <BookOpen size={14} /> : <LayoutDashboard size={14} />;
+            const kindLabel = r.kind === "glossary" ? "TERM" : r.kind === "lecture" ? "LECTURE" : "PAGE";
+            return (
+              <button key={i} onClick={() => commit(r)} onMouseEnter={() => setSel(i)}
+                style={{ display: "flex", alignItems: "flex-start", gap: 10, width: "100%", padding: "9px 12px", borderRadius: 8,
+                  border: "none", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+                  background: sel === i ? "var(--accent)" : "transparent", color: "var(--foreground)" }}>
+                <span style={{ marginTop: 2, color: "var(--primary)" }}>{icon}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontWeight: 700, fontSize: 13 }}>{r.label}</span>
+                    <span style={{ fontSize: 9.5, color: "var(--muted-foreground)", fontWeight: 700, letterSpacing: "0.06em" }}>{kindLabel}</span>
+                  </div>
+                  <div style={{ fontSize: 11.5, color: "var(--muted-foreground)", lineHeight: 1.4, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.sub}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 14px", borderTop: "1px solid var(--border)", background: "var(--surface-2)", fontSize: 10.5, color: "var(--muted-foreground)" }}>
+          <span><kbd style={{ fontFamily: "ui-monospace, monospace" }}>↑↓</kbd> navigate</span>
+          <span><kbd style={{ fontFamily: "ui-monospace, monospace" }}>Enter</kbd> open</span>
+          <span><kbd style={{ fontFamily: "ui-monospace, monospace" }}>Esc</kbd> close</span>
+          <span style={{ marginLeft: "auto" }}>{results.length} result{results.length === 1 ? "" : "s"}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ══════════ Exam runner (functional practice-exam) ══════════ */
 function ExamCard({ exam, isTeacher }) {
   const [mode, setMode] = useState("summary");
@@ -1499,12 +1710,25 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [quizResults, setQuizResults] = useState({});
   const [userMenu, setUserMenu] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [profile, setProfile] = useState({
     displayName: "",
     email: "",
     bio: "",
   });
   const [activityLog, setActivityLog] = useState([]);
+  const [students, setStudents] = useState(() => {
+    const first = ["Ada", "Amir", "Léa", "Yusuf", "Elena", "Ben", "Chidi", "Mei", "Zara", "Kofi", "Priya", "Ivan", "Sofia", "Diego", "Nia", "Aiko", "Rania", "Tomas", "Maya", "Ravi", "Nora", "Kian", "Ines", "Omar", "Fatou", "Luca", "Hana", "Anwar", "Sanaa", "Rui", "Fen", "Kai", "Anais", "Yara", "Mateo", "Lila", "Karim", "Sara", "Bea", "Milo", "Reza", "Lin"];
+    const last = ["Chen", "Kaba", "Martin", "El-Sayed", "Ivanova", "Cohen", "Okoye", "Wang", "Ali", "Mensah", "Sharma", "Petrov", "Rossi", "García", "Adebayo", "Sato", "Bakr", "Novak", "Reyes", "Kumar", "Torres", "Reza", "Lopez", "Nasser", "Diallo", "Bianchi", "Kim", "Haddad", "Zhao", "Silva", "Xu", "Hoshino", "Dupont", "El-Amin", "Álvarez", "Rousseau", "Boumediene", "Costa", "Vlad", "Ferrari", "Rahmani", "Park"];
+    return Array.from({ length: 42 }, (_, i) => ({
+      id: i + 1,
+      name: `${first[i % first.length]} ${last[i % last.length]}`,
+      progress: Math.min(26, Math.max(0, Math.round(Math.sin(i * 0.9) * 8 + 12 + i * 0.15))),
+      quiz: Math.min(100, Math.max(20, Math.round(60 + Math.sin(i * 1.3) * 25 + (i % 5) * 2))),
+      atRisk: i % 9 === 0,
+      note: "",
+    }));
+  });
 
   const isTeacher = session?.role === "teacher";
   const selected = SESSIONS.find(s => s.id === selectedId) || null;
@@ -1541,6 +1765,22 @@ export default function App() {
   const openSession = (s, tab = "details") => { setSelectedId(s.id); setCtxTab(tab); setCtxOpen(true); };
   const openLecture = s => { setLectureId(s.id); setSelectedId(s.id); setActiveNav(s.sem === 1 ? "s1" : "s2"); };
 
+  /* ── Global Ctrl/Cmd+S opens the search modal ── */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        setSearchOpen(v => !v);
+      } else if (e.key === "/" && !searchOpen && !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [searchOpen]);
+
   /* ── URL slug routing (pathname-based, deep-linkable, no hash) ── */
   const findBySlug = (slug) => SESSIONS.find(s => slugify(s.title) === slug);
   useEffect(() => {
@@ -1554,7 +1794,7 @@ export default function App() {
       if (parts[0] === "apps" && parts[1]) idx = 2;
       const [top, arg, extra] = [parts[idx], parts[idx + 1], parts[idx + 2]];
       if (!top) return;
-      if (["dashboard", "s1", "s2", "diagrams", "glossary", "book", "scroller", "exams", "lectures", "user"].includes(top)) {
+      if (["dashboard", "s1", "s2", "diagrams", "glossary", "book", "scroller", "exams", "lectures", "user", "students"].includes(top)) {
         setActiveNav(top); setLectureId(null);
       } else if (top === "lecture" && arg) {
         const s = findBySlug(arg);
@@ -2104,6 +2344,86 @@ export default function App() {
     );
   };
 
+  const StudentsView = () => {
+    if (!isTeacher) {
+      return (
+        <div style={{ padding: 40, textAlign: "center", color: "var(--muted-foreground)" }}>
+          <Lock size={22} style={{ color: "var(--warning)" }} />
+          <div style={{ fontWeight: 700, marginTop: 8, fontSize: 15 }}>Teacher only</div>
+          <div style={{ fontSize: 12.5, marginTop: 4 }}>Log in as <code>teacher / teacher2026</code> to view the cohort.</div>
+        </div>
+      );
+    }
+    const [q, setQ] = useState("");
+    const [filter, setFilter] = useState("all");
+    const list = students
+      .filter(s => filter === "all" || (filter === "risk" ? s.atRisk : filter === "top" ? s.quiz >= 80 : filter === "low" ? s.quiz < 60 : true))
+      .filter(s => !q.trim() || s.name.toLowerCase().includes(q.toLowerCase()));
+    const setNote = (id, note) => setStudents(l => l.map(s => s.id === id ? { ...s, note } : s));
+    const avg = Math.round(students.reduce((a, s) => a + s.quiz, 0) / students.length);
+    const risk = students.filter(s => s.atRisk).length;
+    return (
+      <div style={{ padding: 20, maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+          <div>
+            <div className="serif" style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>Students · Cohort 2026/27</div>
+            <div style={{ fontSize: 13, color: "var(--muted-foreground)" }}>
+              {students.length} students · avg quiz {avg}% · {risk} at risk. Click a row to edit the note.
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div style={{ position: "relative", width: 200 }}>
+              <Search size={13} style={{ position: "absolute", left: 8, top: 8, color: "var(--muted-foreground)" }} />
+              <input value={q} onChange={e => setQ(e.target.value)} placeholder="Find student…"
+                style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8, padding: "6px 10px 6px 28px", fontSize: 12, color: "var(--foreground)", fontFamily: "inherit", outline: "none" }} />
+            </div>
+            <div style={{ display: "flex", background: "var(--surface-2)", borderRadius: 8, padding: 2, border: "1px solid var(--border)" }}>
+              {[["all", "All"], ["top", "Top"], ["low", "Low"], ["risk", "At risk"]].map(([id, lbl]) => (
+                <button key={id} onClick={() => setFilter(id)} title={`Filter to ${lbl.toLowerCase()} students`}
+                  style={{ border: "none", cursor: "pointer", padding: "5px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, fontWeight: 600,
+                    background: filter === id ? "var(--primary)" : "transparent",
+                    color: filter === id ? "var(--primary-foreground)" : "var(--muted-foreground)" }}>{lbl}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 6 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "36px 1.4fr 90px 120px 100px 2fr", gap: 8, padding: "8px 12px", fontSize: 10.5, fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border-subtle)" }}>
+            <span>#</span><span>NAME</span><span>QUIZ AVG</span><span>PROGRESS</span><span>STATUS</span><span>NOTE</span>
+          </div>
+          {list.map(s => (
+            <div key={s.id} style={{ display: "grid", gridTemplateColumns: "36px 1.4fr 90px 120px 100px 2fr", gap: 8, alignItems: "center", padding: "8px 12px", fontSize: 12, borderRadius: 6 }}>
+              <span style={{ fontWeight: 700, color: "var(--muted-foreground)" }}>{s.id}</span>
+              <span style={{ fontWeight: 600 }}>{s.name}</span>
+              <span>
+                <Badge variant={s.quiz >= 80 ? "success" : s.quiz >= 60 ? "info" : "warning"} size="xs">{s.quiz}%</Badge>
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ width: 70, height: 6, borderRadius: 3, background: "var(--surface-2)", overflow: "hidden" }}>
+                  <span style={{ display: "block", width: `${(s.progress / 26) * 100}%`, height: "100%", background: "var(--primary)" }} />
+                </span>
+                <span style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>{s.progress}/26</span>
+              </span>
+              <span>
+                {s.atRisk
+                  ? <Badge variant="warning" size="xs"><AlertTriangle size={10} style={{ marginRight: 3 }} />At risk</Badge>
+                  : s.quiz >= 80 ? <Badge variant="success" size="xs">Top</Badge>
+                  : <Badge variant="default" size="xs">On track</Badge>}
+              </span>
+              <input value={s.note} onChange={e => setNote(s.id, e.target.value)} placeholder="Add a private note…"
+                title="Teacher-only note visible only to you"
+                style={{ background: "var(--input)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: "5px 8px", fontSize: 11.5, color: "var(--foreground)", fontFamily: "inherit", outline: "none" }} />
+            </div>
+          ))}
+          {list.length === 0 && <div style={{ padding: 24, textAlign: "center", color: "var(--muted-foreground)", fontSize: 13 }}>No students match.</div>}
+        </div>
+        <div style={{ marginTop: 12, fontSize: 11, color: "var(--muted-foreground)", textAlign: "center" }}>
+          Notes are stored in your session (this is a demo cohort). Rubrics + grade sheets are stubbed for future admin pages.
+        </div>
+      </div>
+    );
+  };
+
   const GlossaryView = () => {
     const [tagFilter, setTagFilter] = useState("all");
     const [q, setQ] = useState("");
@@ -2393,7 +2713,8 @@ export default function App() {
         {/* ── HEADER ── */}
         <header style={{ height: 52, flexShrink: 0, display: "flex", alignItems: "center", gap: 12, padding: "0 14px",
           background: "var(--secondary)", borderBottom: "1px solid var(--border)", zIndex: 30 }}>
-          <button onClick={() => setNavOpen(o => !o)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex" }}>
+          <button onClick={() => setNavOpen(o => !o)} title="Toggle sidebar navigation"
+            style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex" }}>
             <Menu size={18} />
           </button>
           <SociMark size={28} />
@@ -2404,60 +2725,86 @@ export default function App() {
           <Badge variant="default" size="xs">{APP_VERSION}</Badge>
           <Badge variant={isTeacher ? "warning" : "primary"} size="xs">{isTeacher ? "Teacher" : "Student"}</Badge>
           <div style={{ flex: 1 }} />
-          <div style={{ position: "relative", width: 210 }}>
-            <Search size={14} style={{ position: "absolute", left: 9, top: 8, color: "var(--muted-foreground)" }} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search topics, readings…"
-              style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: "var(--radius)",
-                padding: "6px 10px 6px 30px", fontSize: 12, color: "var(--foreground)", fontFamily: "inherit", outline: "none" }} />
-          </div>
-          <button onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))} aria-label="Toggle theme"
+          <button onClick={() => setSearchOpen(true)} title="Search glossary, lectures, pages (Ctrl+S)"
+            style={{ display: "flex", alignItems: "center", gap: 8, width: 260, background: "var(--input)", border: "1px solid var(--border)",
+              borderRadius: "var(--radius)", padding: "6px 10px", fontSize: 12, color: "var(--muted-foreground)", fontFamily: "inherit", cursor: "text" }}>
+            <Search size={14} />
+            <span style={{ flex: 1, textAlign: "left" }}>Search glossary, lectures…</span>
+            <kbd style={{ fontFamily: "ui-monospace, monospace", fontSize: 10, padding: "1px 5px", borderRadius: 3, background: "var(--surface-2)", border: "1px solid var(--border-subtle)", color: "var(--muted-foreground)" }}>
+              Ctrl+S
+            </kbd>
+          </button>
+          <button onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))} title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"} aria-label="Toggle theme"
             style={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 6, padding: "6px 8px",
               cursor: "pointer", color: "var(--foreground)", display: "flex" }}>
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
-          {/* User chip + admin dropdown to switch users */}
-          <div style={{ position: "relative" }}>
-            <button onClick={() => setUserMenu(v => !v)}
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--surface-2)", border: "1px solid var(--border)",
-                borderRadius: 999, padding: "5px 10px 5px 5px", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12 }}>
-              <span style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", color: "var(--accent-foreground)",
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
-                {(session?.username || "?").slice(0, 1).toUpperCase()}
-              </span>
-              <span style={{ fontWeight: 600 }}>{session?.username || "user"}</span>
-              <ChevronRight size={12} style={{ transform: userMenu ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.15s" }} />
-            </button>
-            {userMenu && (
-              <div style={{ position: "absolute", top: "100%", right: 0, marginTop: 6, minWidth: 200, background: "var(--card)",
-                border: "1px solid var(--border)", borderRadius: 8, padding: 6, zIndex: 40, boxShadow: "var(--shadow-lg)" }}>
-                <div style={{ padding: "6px 10px", fontSize: 10, fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.06em" }}>
-                  SWITCH USER
-                </div>
-                {[
-                  { role: "student", username: "student", label: "student · read + quiz" },
-                  { role: "teacher", username: "teacher", label: "teacher · + answer keys" },
-                ].map(u => (
-                  <button key={u.role} onClick={() => { setSession(u); setUserMenu(false); }}
-                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: session?.role === u.role ? "var(--accent)" : "transparent",
+          {/* User chip — teacher gets a switcher dropdown, student gets a plain name+logout */}
+          {isTeacher ? (
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setUserMenu(v => !v)} title="Admin user switcher · switch roles, open profile, log out"
+                style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--surface-2)", border: "1px solid var(--border)",
+                  borderRadius: 999, padding: "5px 10px 5px 5px", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12 }}>
+                <span style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", color: "var(--accent-foreground)",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
+                  {(session?.username || "?").slice(0, 1).toUpperCase()}
+                </span>
+                <span style={{ fontWeight: 600 }}>{session?.username || "user"}</span>
+                <ChevronRight size={12} style={{ transform: userMenu ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.15s" }} />
+              </button>
+              {userMenu && (
+                <div style={{ position: "absolute", top: "100%", right: 0, marginTop: 6, minWidth: 220, background: "var(--card)",
+                  border: "1px solid var(--border)", borderRadius: 8, padding: 6, zIndex: 40, boxShadow: "var(--shadow-lg)" }}>
+                  <div style={{ padding: "6px 10px", fontSize: 10, fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.06em" }}>
+                    SWITCH USER (admin)
+                  </div>
+                  {[
+                    { role: "student", username: "student", label: "student · read + quiz" },
+                    { role: "teacher", username: "teacher", label: "teacher · + admin pages" },
+                  ].map(u => (
+                    <button key={u.role} onClick={() => { setSession(u); setUserMenu(false); }} title={`Switch to ${u.role} view`}
+                      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: session?.role === u.role ? "var(--accent)" : "transparent",
+                        border: "none", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
+                      {u.role === "teacher" ? <Users size={13} /> : <User size={13} />} {u.label}
+                      {session?.role === u.role && <Check size={13} style={{ marginLeft: "auto", color: "var(--primary)" }} />}
+                    </button>
+                  ))}
+                  <div style={{ borderTop: "1px solid var(--border-subtle)", margin: "6px 0" }} />
+                  <button onClick={() => { setUserMenu(false); setActiveNav("students"); setSelectedId(null); setLectureId(null); }} title="Cohort dashboard"
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: "transparent",
                       border: "none", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
-                    {u.role === "teacher" ? <Users size={13} /> : <User size={13} />} {u.label}
-                    {session?.role === u.role && <Check size={13} style={{ marginLeft: "auto", color: "var(--primary)" }} />}
+                    <Users size={13} /> Students · cohort
                   </button>
-                ))}
-                <div style={{ borderTop: "1px solid var(--border-subtle)", margin: "6px 0" }} />
-                <button onClick={() => { setUserMenu(false); setActiveNav("user"); setSelectedId(null); setLectureId(null); }}
-                  style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: "transparent",
-                    border: "none", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
-                  <User size={13} /> My profile
-                </button>
-                <button onClick={() => { setUserMenu(false); setSession(null); setActiveNav("dashboard"); setSelectedId(null); setLectureId(null); }}
-                  style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: "transparent",
-                    border: "none", cursor: "pointer", color: "var(--destructive)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
-                  <LogOut size={13} /> Log out
-                </button>
-              </div>
-            )}
-          </div>
+                  <button onClick={() => { setUserMenu(false); setActiveNav("user"); setSelectedId(null); setLectureId(null); }} title="Your profile"
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: "transparent",
+                      border: "none", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
+                    <User size={13} /> My profile
+                  </button>
+                  <div style={{ borderTop: "1px solid var(--border-subtle)", margin: "6px 0" }} />
+                  <button onClick={() => { setUserMenu(false); setSession(null); setActiveNav("dashboard"); setSelectedId(null); setLectureId(null); }} title="Sign out"
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: "transparent",
+                      border: "none", cursor: "pointer", color: "var(--destructive)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
+                    <LogOut size={13} /> Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <button onClick={() => { setActiveNav("user"); setSelectedId(null); setLectureId(null); }} title="Open your profile"
+                style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--surface-2)", border: "1px solid var(--border)",
+                  borderRadius: 999, padding: "5px 10px 5px 5px", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12 }}>
+                <span style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--accent)", color: "var(--accent-foreground)",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
+                  {(session?.username || "?").slice(0, 1).toUpperCase()}
+                </span>
+                <span style={{ fontWeight: 600 }}>{session?.username || "user"}</span>
+              </button>
+              <Btn variant="ghost" size="xs" title="Sign out" onClick={() => { setSession(null); setActiveNav("dashboard"); setSelectedId(null); setLectureId(null); }}>
+                <LogOut size={13} />
+              </Btn>
+            </div>
+          )}
         </header>
 
         {/* ── BODY ── */}
@@ -2466,10 +2813,10 @@ export default function App() {
           {/* LEFT NAV */}
           <nav style={{ width: navOpen ? 210 : 56, flexShrink: 0, background: "var(--secondary)", borderRight: "1px solid var(--border)",
             display: "flex", flexDirection: "column", padding: 8, gap: 4, transition: "width .2s", zIndex: 20 }}>
-            {NAV.map(n => {
+            {NAV.filter(n => !n.teacherOnly || isTeacher).map(n => {
               const active = activeNav === n.id;
               return (
-                <button key={n.id} className={active ? "" : "navitem"}
+                <button key={n.id} className={active ? "" : "navitem"} title={n.tip || n.label}
                   onClick={() => { setActiveNav(n.id); setSelectedId(null); setLectureId(null); }}
                   style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 8, border: "none",
                     cursor: "pointer", fontFamily: "inherit", fontSize: 12.5, fontWeight: active ? 700 : 500,
@@ -2478,6 +2825,7 @@ export default function App() {
                     justifyContent: navOpen ? "flex-start" : "center", whiteSpace: "nowrap", overflow: "hidden" }}>
                   <n.icon size={16} style={{ flexShrink: 0 }} />
                   {navOpen && n.label}
+                  {navOpen && n.teacherOnly && <Badge variant="warning" size="xs" style={{ marginLeft: "auto" }}>T</Badge>}
                   {navOpen && (n.id === "s1" || n.id === "s2") && (
                     <span style={{ marginLeft: "auto", fontSize: 10, color: "var(--muted-foreground)", fontWeight: 500 }}>
                       {semDone(n.id === "s1" ? 1 : 2)}/13
@@ -2490,7 +2838,7 @@ export default function App() {
             {navOpen && (
               <div style={{ padding: "8px 12px", fontSize: 10, color: "var(--muted-foreground)", borderTop: "1px solid var(--border-subtle)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}><Mic size={11} /> Presentations in week 25</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Sparkles size={11} /> SociAI v2.1</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Sparkles size={11} /> SociAI {APP_VERSION}</div>
               </div>
             )}
           </nav>
@@ -2506,6 +2854,7 @@ export default function App() {
                   activeNav === "glossary" ? "Glossary" :
                   activeNav === "lectures" ? "Lectures" :
                   activeNav === "user" ? "Profile" :
+                  activeNav === "students" ? "Students · cohort" :
                   activeNav === "scroller" ? "Lecture Scroller" :
                   `Semester ${sem} — ${sem === 1 ? "Machines, Markets & Media" : "Power, Ethics & Futures"}`}
               </span>
@@ -2541,6 +2890,7 @@ export default function App() {
                   {activeNav === "book" && <BookView />}
                   {activeNav === "scroller" && <ScrollerView />}
                   {activeNav === "user" && <UserView />}
+                  {activeNav === "students" && <StudentsView />}
                   {showSessionsUI && (viewMode === "tiles" ? <TilesView /> : viewMode === "table" ? <TableView /> : <ScrollView />)}
                 </>
               )}
@@ -2626,7 +2976,7 @@ export default function App() {
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--success)" }} />
             {isTeacher ? "Teacher session" : "Student session"} · {doneCount}/26 quizzes{doneCount ? ` · avg ${avgPct}%` : ""}
           </span>
-          <Btn variant="ghost" size="xs" onClick={() => openLecture(SESSIONS[Math.floor(Math.random() * SESSIONS.length)])}>
+          <Btn variant="ghost" size="xs" title="Open a random class" onClick={() => openLecture(SESSIONS[Math.floor(Math.random() * SESSIONS.length)])}>
             <Shuffle size={12} /> Random
           </Btn>
           <span style={{ flex: 1, textAlign: "center" }}>
@@ -2635,6 +2985,7 @@ export default function App() {
               activeNav === "book" ? "26 chapters · 260 sections · full course" :
               activeNav === "diagrams" ? "26 editorial diagrams · 7 kinds · one per class" :
               activeNav === "glossary" ? `${GLOSSARY.length} curated keywords · 3 views (tiles/table/scroll)` :
+              activeNav === "students" ? `${students.length} students · avg ${Math.round(students.reduce((a,s)=>a+s.quiz,0)/students.length)}%` :
               activeNav === "lectures" ? "All 26 lectures · full index" :
               activeNav === "user" ? "Your profile · progress · logs" :
               activeNav === "scroller" ? "286 slides · one section at a time · scroll ↓" : "Sociology L3 · 26 × 1h30 · 10 sections per lecture"}
@@ -2656,6 +3007,14 @@ export default function App() {
           </button>
           <span style={{ color: "var(--muted-foreground)" }}>SociAI {APP_VERSION} · La Sorbonne 2026/27</span>
         </footer>
+
+        <SearchModal
+          open={searchOpen}
+          onClose={() => setSearchOpen(false)}
+          onGlossary={(g) => { setActiveNav("glossary"); }}
+          onLecture={(s) => openLecture(s)}
+          onNav={(id) => { setActiveNav(id); setSelectedId(null); setLectureId(null); }}
+        />
       </div>
     </>
   );
