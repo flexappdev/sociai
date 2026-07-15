@@ -1020,10 +1020,66 @@ const NAV = [
   { id: "s1", label: "Semester 1", icon: BookOpen },
   { id: "s2", label: "Semester 2", icon: GraduationCap },
   { id: "diagrams", label: "Diagrams", icon: BarChart3 },
+  { id: "glossary", label: "Glossary", icon: Lightbulb },
   { id: "book", label: "Book", icon: BookMarked },
   { id: "scroller", label: "Scroller", icon: Film },
   { id: "exams", label: "Exams", icon: FileText },
   { id: "user", label: "Profile", icon: User },
+];
+
+/* ══════════ GLOSSARY — 50 curated keywords with definitions ══════════ */
+const GLOSSARY = [
+  { term: "Deep mediatization", cls: 1, tag: "media", def: "Couldry & Hepp's thesis that digital media and data infrastructures are now entangled with every domain of social life — not a set of tools we use, but the fabric we inhabit." },
+  { term: "Datafication", cls: 1, tag: "data", def: "The conversion of social action — friendship, movement, mood, attention — into quantifiable, machine-readable data that can be stored, priced, and predicted upon." },
+  { term: "Socio-technical system", cls: 1, tag: "theory", def: "A framework insisting technologies are shaped by social interests and, once deployed, reshape social relations in patterned, unequal ways. Middle path between determinism and constructivism." },
+  { term: "Technological determinism", cls: 1, tag: "theory", def: "The view that a technology's arrival causes predictable social effects on its own — critiqued for hiding the firms, engineers, laws and users behind the artefact." },
+  { term: "Algorithmic assemblage", cls: 2, tag: "algorithms", def: "Kitchin's insistence that an algorithm is never just math — it is code + data + business model + team + workarounds + legal constraints, endlessly retrained. To study one is to study the whole assemblage." },
+  { term: "Black box", cls: 2, tag: "algorithms", def: "A system whose internal workings are opaque — proprietary, personalised, constantly changing. Algorithms resist study by design; opacity is itself a form of power." },
+  { term: "Algorithmic governance", cls: 2, tag: "power", def: "The ordering of social life through automated classification, ranking, and scoring — often without the procedural safeguards (notice, reasons, appeal) demanded of human bureaucracy." },
+  { term: "Performativity", cls: 2, tag: "theory", def: "The property of models that act on the world they predict: police sent where crime was recorded find more crime there; trending lists make trends. The map redraws the territory." },
+  { term: "Folk theory (of the algorithm)", cls: 2, tag: "users", def: "Users' own theories about how a system works — shadowbans, lucky posting hours, the mood of the feed. Even wrong folk theories reshape behaviour, which is sociologically consequential." },
+  { term: "Supervised learning", cls: 3, tag: "ml", def: "The ML paradigm where models train on labelled input/output pairs and learn to generalise. Politically loaded: someone chose the labels, and historical labels encode historical judgments." },
+  { term: "Reinforcement learning (RL)", cls: 3, tag: "ml", def: "Paradigm where an agent acts in an environment and adjusts its behaviour to maximise a reward signal. The choice of reward function is a value choice in disguise." },
+  { term: "Deep learning", cls: 3, tag: "ml", def: "Neural networks with many layers, extracting features progressively from raw data. Its rise rests on three inputs: massive datasets, massive compute, and low-paid human labelling." },
+  { term: "Compute economy", cls: 3, tag: "capital", def: "The concentration of AI capability in a few firms and states because training frontier models costs hundreds of millions and demands rationed GPU clusters. Chips as strategic resource." },
+  { term: "RLHF", cls: 4, tag: "ml", def: "Reinforcement Learning from Human Feedback — the tuning step where humans rank model outputs and a reward model learns their preferences, used to align GenAI models to be helpful/harmless." },
+  { term: "Generative AI", cls: 4, tag: "ml", def: "Models that produce novel text, images, code, or video rather than only classify. Reached mass adoption in 2023 — the fastest technology diffusion ever recorded." },
+  { term: "Surveillance capitalism", cls: 5, tag: "capital", def: "Zuboff's term for the economic order that claims human experience as raw material for behavioural data, extracted, predicted, and sold as futures on behavioural markets." },
+  { term: "Behavioural surplus", cls: 5, tag: "capital", def: "Data collected beyond what improves the service — the exhaust of clicks, dwell time, and location that feeds prediction products sold to third parties." },
+  { term: "Attention economy", cls: 6, tag: "media", def: "An economy in which human attention is the scarce commodity fought over — with outrage often the cheapest fuel because it maximises engagement, hence ad revenue." },
+  { term: "Engagement optimisation", cls: 6, tag: "algorithms", def: "Ranking content by predicted user reaction (time-on-site, likes, shares). Naturalises whichever content triggers the strongest response, regardless of accuracy or wellbeing." },
+  { term: "Platform society", cls: 7, tag: "media", def: "Van Dijck's diagnosis that platforms — search, social, marketplaces, cloud, payments — have become the operating layer of coordination for economic and social life." },
+  { term: "Networked public", cls: 8, tag: "media", def: "boyd's term for the reconfigured public spaces of social media — persistent, searchable, replicable, scaleable — different from the Habermasian public sphere but doing similar political work." },
+  { term: "Gig economy", cls: 9, tag: "labour", def: "Piecework labour markets mediated by platforms (Uber, Deliveroo) where algorithmic management replaces the human manager — a stopwatch that can fire you." },
+  { term: "Algorithmic management", cls: 9, tag: "labour", def: "Dispatch, monitoring, evaluation, and discipline of workers by software. Rosenblat & Stark's studies show riders and drivers strategise against opaque systems they cannot appeal to." },
+  { term: "Quantified self", cls: 10, tag: "identity", def: "The practice of tracking body, mood, sleep, and screen time as data projects. Can empower (chronic-illness self-management) and discipline (importing performance metrics into intimate life)." },
+  { term: "Filter bubble", cls: 11, tag: "algorithms", def: "Pariser's coinage — the personalised information environment produced when ranking systems adapt to a user's clicks. The feed learns you faster than you learn it." },
+  { term: "Echo chamber", cls: 11, tag: "media", def: "A discourse space where a shared belief is amplified by repetition and dissent is filtered out — related to but distinct from a filter bubble (algorithmic vs social)." },
+  { term: "Digital divide", cls: 12, tag: "inequality", def: "The layered inequality of access, skills, usage, and outcomes online. AI adds a new layer: who has the tools and literacy to benefit rather than be scored by automation." },
+  { term: "Second-level divide", cls: 12, tag: "inequality", def: "Beyond access — the divide in how the same connectivity is used (homework help vs pure entertainment) and what outcomes it produces. Skills, not bandwidth." },
+  { term: "The alignment problem", cls: 14, tag: "safety", def: "The technical + political question of ensuring AI systems pursue goals compatible with human values and intentions. The follow-up is: aligned to WHOSE values, decided HOW?" },
+  { term: "Outer alignment", cls: 14, tag: "safety", def: "Getting the specified objective right — writing down the goal we actually want, rather than one that will be gamed." },
+  { term: "Inner alignment", cls: 14, tag: "safety", def: "Ensuring the trained model actually pursues the specified objective rather than a proxy it learned during training." },
+  { term: "Algorithmic bias", cls: 15, tag: "fairness", def: "Systematic error correlated with protected attributes. Enters at every stage — historical data, sampling, labels, model choice, threshold — hence the bias 'stack'." },
+  { term: "Fairness metrics", cls: 15, tag: "fairness", def: "Statistical criteria for allocating errors across groups (demographic parity, equal opportunity, calibration). Provably incompatible in general — choosing one is a political act." },
+  { term: "Gender Shades", cls: 15, tag: "fairness", def: "Buolamwini & Gebru's 2018 audit finding commercial face-recognition systems misclassified darker-skinned women up to 34% of the time — landmark demonstration of intersectional AI harm." },
+  { term: "Coded bias", cls: 16, tag: "inequality", def: "The phenomenon by which existing racial, class, gender, and geographic hierarchies get automated at scale when the AI is trained on historical decision records." },
+  { term: "Automation curve", cls: 17, tag: "labour", def: "Task → codify → automate → displace/redesign. The interesting sociological question is not IF automation happens but who decides which tasks, and who gets retrained." },
+  { term: "Information disorder", cls: 18, tag: "media", def: "Wardle & Derakhshan's framework distinguishing mis- (unintentional), dis- (intentional), and mal-information — a social system with creators, amplifiers, believers, and actors." },
+  { term: "Deepfake", cls: 18, tag: "media", def: "AI-generated audio/video convincingly depicting a person doing/saying something they did not. Threat model: not just deception but the 'liar's dividend' of plausible denial for real evidence." },
+  { term: "Extended cognition", cls: 19, tag: "identity", def: "Clark & Chalmers's thesis that cognitive processes can extend beyond the skull into notebooks, phones — and now LLMs. Raises the question of what remains distinctly human thinking." },
+  { term: "Cognitive offloading", cls: 19, tag: "identity", def: "Delegating cognitive work (arithmetic, memory, writing) to external tools. Well documented for calculators and GPS; consequences of offloading writing/reasoning to LLMs are only starting to be studied." },
+  { term: "Dashboard governance", cls: 20, tag: "institutions", def: "Institutions run through metrics and screens — schools via learning analytics, hospitals via triage scores. When metrics travel, the institution's definition of success bends." },
+  { term: "Redress", cls: 21, tag: "ethics", def: "The mechanism by which a decision can be appealed and reversed. Ethics principles without redress are decoration — the older technology of due process still matters." },
+  { term: "Brussels Effect", cls: 22, tag: "regulation", def: "Anu Bradford's thesis that EU regulation shapes global corporate behaviour because firms find it cheaper to apply the strictest standard everywhere (GDPR, AI Act) than to fragment." },
+  { term: "EU AI Act", cls: 23, tag: "regulation", def: "The EU's 2024 risk-tiered regulation of AI — prohibited practices, high-risk sectors (hiring, education, biometrics), limited-risk disclosure duties, minimal-risk pass. First horizontal AI law." },
+  { term: "High-risk system", cls: 23, tag: "regulation", def: "Under the EU AI Act, systems in defined sensitive domains (employment, essential services, biometrics, critical infrastructure) that face conformity assessment and post-market monitoring duties." },
+  { term: "Compute carbon footprint", cls: 24, tag: "environment", def: "The energy, water, and hardware cost of training and serving AI models. Every prompt has a physical footprint; every training run consumes the electricity of a small city." },
+  { term: "AI governance", cls: 25, tag: "regulation", def: "The contested field of rules, standards, norms, and institutions attempting to steer AI development. A contest between labs, states, users, civil society, and standards bodies — not a table." },
+  { term: "Standards body", cls: 25, tag: "regulation", def: "Organisations (ISO, IEEE, NIST) writing voluntary technical standards. In AI governance they act as soft-law venues where firms and states negotiate what 'trustworthy' means." },
+  { term: "Automation", cls: 26, tag: "futures", def: "One of the '5 A's' — the substitution of human labour by machines. The sociological question is distributive: who benefits, who bears the transition cost." },
+  { term: "Augmentation", cls: 26, tag: "futures", def: "The pairing of humans with AI tools to raise capability. The more optimistic frame than displacement — but demands re-skilling and access, both unequal." },
+  { term: "Accountability", cls: 26, tag: "futures", def: "The final 'A' — the design of institutions that allow decisions to be explained, contested, and reversed. Without it, the other four A's are engineering, not politics." },
 ];
 
 /* Mock cohort data — teacher view only */
@@ -1498,7 +1554,7 @@ export default function App() {
       if (parts[0] === "apps" && parts[1]) idx = 2;
       const [top, arg, extra] = [parts[idx], parts[idx + 1], parts[idx + 2]];
       if (!top) return;
-      if (["dashboard", "s1", "s2", "diagrams", "book", "scroller", "exams", "lectures", "user"].includes(top)) {
+      if (["dashboard", "s1", "s2", "diagrams", "glossary", "book", "scroller", "exams", "lectures", "user"].includes(top)) {
         setActiveNav(top); setLectureId(null);
       } else if (top === "lecture" && arg) {
         const s = findBySlug(arg);
@@ -2048,6 +2104,132 @@ export default function App() {
     );
   };
 
+  const GlossaryView = () => {
+    const [tagFilter, setTagFilter] = useState("all");
+    const [q, setQ] = useState("");
+    const tags = Array.from(new Set(GLOSSARY.map(g => g.tag))).sort();
+    const list = GLOSSARY
+      .filter(g => tagFilter === "all" || g.tag === tagFilter)
+      .filter(g => !q.trim() || (g.term + " " + g.def + " " + g.tag).toLowerCase().includes(q.toLowerCase()))
+      .sort((a, b) => a.term.localeCompare(b.term));
+    const jumpToClass = (n) => {
+      const s = SESSIONS.find(x => x.num === n);
+      if (s) openLecture(s);
+    };
+    const tagColor = (t) => ({
+      media: "info", data: "primary", theory: "default", algorithms: "warning",
+      power: "warning", users: "info", ml: "primary", capital: "warning",
+      labour: "warning", identity: "info", inequality: "warning", fairness: "warning",
+      safety: "primary", institutions: "default", ethics: "warning",
+      regulation: "info", environment: "success", futures: "primary",
+    }[t] || "default");
+
+    return (
+      <div style={{ padding: 20, maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ marginBottom: 12 }}>
+          <div className="serif" style={{ fontSize: 24, fontWeight: 800, marginBottom: 4 }}>Glossary</div>
+          <div style={{ fontSize: 13, color: "var(--muted-foreground)" }}>
+            {GLOSSARY.length} curated keywords across the year&rsquo;s core theory. Search by term or filter by field.
+            Click any keyword to jump to the class where it&rsquo;s introduced.
+          </div>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
+          <div style={{ position: "relative", flex: 1, minWidth: 220, maxWidth: 320 }}>
+            <Search size={14} style={{ position: "absolute", left: 9, top: 9, color: "var(--muted-foreground)" }} />
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search terms and definitions…"
+              style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8, padding: "7px 10px 7px 30px", fontSize: 12, color: "var(--foreground)", fontFamily: "inherit", outline: "none" }} />
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+            <button onClick={() => setTagFilter("all")}
+              style={{ padding: "5px 10px", borderRadius: 999, fontFamily: "inherit", fontSize: 11, fontWeight: 600, cursor: "pointer",
+                border: `1px solid ${tagFilter === "all" ? "var(--primary)" : "var(--border)"}`,
+                background: tagFilter === "all" ? "var(--accent)" : "var(--surface-1)",
+                color: tagFilter === "all" ? "var(--accent-foreground)" : "var(--muted-foreground)" }}>
+              All · {GLOSSARY.length}
+            </button>
+            {tags.map(t => {
+              const count = GLOSSARY.filter(g => g.tag === t).length;
+              return (
+                <button key={t} onClick={() => setTagFilter(t)}
+                  style={{ padding: "5px 10px", borderRadius: 999, fontFamily: "inherit", fontSize: 11, fontWeight: 600, cursor: "pointer", textTransform: "capitalize",
+                    border: `1px solid ${tagFilter === t ? "var(--primary)" : "var(--border)"}`,
+                    background: tagFilter === t ? "var(--accent)" : "var(--surface-1)",
+                    color: tagFilter === t ? "var(--accent-foreground)" : "var(--muted-foreground)" }}>
+                  {t} · {count}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {viewMode === "tiles" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+            {list.map(g => (
+              <div key={g.term} className="hoverable" onClick={() => jumpToClass(g.cls)}
+                style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 14, cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                  <div className="serif" style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.2 }}>{g.term}</div>
+                  <Badge variant={tagColor(g.tag)} size="xs">{g.tag}</Badge>
+                </div>
+                <p style={{ fontSize: 12, lineHeight: 1.6, color: "var(--secondary-foreground)" }}>{g.def}</p>
+                <div style={{ fontSize: 10.5, color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
+                  <BookOpen size={11} /> Class {g.cls} ·{" "}
+                  <span style={{ color: "var(--accent-foreground)", fontWeight: 600 }}>
+                    {SESSIONS.find(x => x.num === g.cls)?.title || ""}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {viewMode === "table" && (
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 4, overflowX: "auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1.1fr 2.2fr 90px 40px", gap: 8, padding: "8px 12px", fontSize: 10.5, fontWeight: 700, color: "var(--muted-foreground)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border-subtle)" }}>
+              <span>TERM</span><span>DEFINITION</span><span>FIELD</span><span>CLASS</span>
+            </div>
+            {list.map(g => (
+              <div key={g.term} className="hoverable" onClick={() => jumpToClass(g.cls)}
+                style={{ display: "grid", gridTemplateColumns: "1.1fr 2.2fr 90px 40px", gap: 8, padding: "9px 12px", alignItems: "start", cursor: "pointer", fontSize: 12, borderRadius: 6 }}>
+                <span style={{ fontWeight: 700 }}>{g.term}</span>
+                <span style={{ color: "var(--secondary-foreground)", lineHeight: 1.5 }}>{g.def}</span>
+                <span><Badge variant={tagColor(g.tag)} size="xs">{g.tag}</Badge></span>
+                <span style={{ color: "var(--muted-foreground)", fontWeight: 700, textAlign: "right" }}>{g.cls}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {viewMode === "scroll" && (
+          <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: 14 }}>
+            {list.map(g => (
+              <div key={g.term} className="hoverable" onClick={() => jumpToClass(g.cls)}
+                style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 18, cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6, gap: 8 }}>
+                  <h3 className="serif" style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.2 }}>{g.term}</h3>
+                  <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+                    <Badge variant={tagColor(g.tag)} size="xs">{g.tag}</Badge>
+                    <Badge variant="primary" size="xs">Class {g.cls}</Badge>
+                  </div>
+                </div>
+                <p style={{ fontSize: 13.5, lineHeight: 1.65, color: "var(--secondary-foreground)" }}>{g.def}</p>
+                <div style={{ marginTop: 8, fontSize: 11, color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <BookOpen size={11} /> Introduced in: <span style={{ color: "var(--accent-foreground)", fontWeight: 600 }}>{SESSIONS.find(x => x.num === g.cls)?.title || ""}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {list.length === 0 && (
+          <div style={{ padding: 40, textAlign: "center", color: "var(--muted-foreground)", fontSize: 13 }}>
+            No keywords match that filter. Try a different tag or clear the search.
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const LecturesView = () => {
     const [sf, setSf] = useState("all");
     const [readingFilter, setRf] = useState("all");
@@ -2321,6 +2503,7 @@ export default function App() {
                 {lecture ? `Lecture · Class ${lecture.num}` :
                   activeNav === "dashboard" ? "Overview" : activeNav === "exams" ? "Exams" : activeNav === "book" ? "The Course Book" :
                   activeNav === "diagrams" ? "Diagrams" :
+                  activeNav === "glossary" ? "Glossary" :
                   activeNav === "lectures" ? "Lectures" :
                   activeNav === "user" ? "Profile" :
                   activeNav === "scroller" ? "Lecture Scroller" :
@@ -2328,7 +2511,7 @@ export default function App() {
               </span>
               {showSessionsUI && <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>{filtered.length} classes</span>}
               <div style={{ flex: 1 }} />
-              {showSessionsUI && (
+              {(showSessionsUI || activeNav === "glossary") && (
                 <div style={{ display: "flex", background: "var(--surface-2)", borderRadius: 8, padding: 2, border: "1px solid var(--border)" }}>
                   {[["scroll", Rows3], ["tiles", LayoutGrid], ["table", List]].map(([m, Icon]) => (
                     <button key={m} onClick={() => setViewMode(m)}
@@ -2353,6 +2536,7 @@ export default function App() {
                   {activeNav === "dashboard" && <Dashboard />}
                   {activeNav === "lectures" && <LecturesView />}
                   {activeNav === "diagrams" && <DiagramsView />}
+                  {activeNav === "glossary" && <GlossaryView />}
                   {activeNav === "exams" && <ExamsView />}
                   {activeNav === "book" && <BookView />}
                   {activeNav === "scroller" && <ScrollerView />}
@@ -2450,6 +2634,7 @@ export default function App() {
               showSessionsUI ? `Showing ${filtered.length} of 13 classes · Semester ${sem}` :
               activeNav === "book" ? "26 chapters · 260 sections · full course" :
               activeNav === "diagrams" ? "26 editorial diagrams · 7 kinds · one per class" :
+              activeNav === "glossary" ? `${GLOSSARY.length} curated keywords · 3 views (tiles/table/scroll)` :
               activeNav === "lectures" ? "All 26 lectures · full index" :
               activeNav === "user" ? "Your profile · progress · logs" :
               activeNav === "scroller" ? "286 slides · one section at a time · scroll ↓" : "Sociology L3 · 26 × 1h30 · 10 sections per lecture"}

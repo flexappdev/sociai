@@ -25,6 +25,7 @@ is a real URL (no `#` fragment).
 | **26 hero diagrams** | Inline SVG (flow, cycle, tree, compare, layers, pyramid, matrix) — one per class. |
 | **Per-section diagrams** | ~40 additional diagrams appear at the bottom of individual lecture sections where they add signal. |
 | **Diagrams gallery** | `/diagrams` — all 26 hero diagrams in one filterable grid (by semester or by kind). |
+| **Glossary** | `/glossary` — 50 curated keywords with definitions. Same 3 views as classes (tiles / table / scroll), plus search + tag filter. Click any term to jump to the class where it&rsquo;s introduced. |
 | **Exam runner** | 4 exams (2 midterms + 2 finals) with **functional practice**: pooled MCQs + live countdown timer + essay pane + score % + missed-question review. |
 | **Book / Scroller** | All 26 chapters as a scrollable book; 286 vertical slides in the scroller. |
 | **Teacher mode** | Answer keys + marking rubrics visible on toggle. |
@@ -37,6 +38,7 @@ is a real URL (no `#` fragment).
 /lectures                  all-lecture index with filters
 /s1  /s2                   semester grid (tiles/table/scroll views)
 /diagrams                  gallery of all 26 hero diagrams
+/glossary                  50 curated keywords with definitions
 /book                      the whole course as a book
 /scroller                  vertical slide reader
 /exams                     all 4 exams
