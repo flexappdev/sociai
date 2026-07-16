@@ -1075,8 +1075,186 @@ const NAV = [
   { id: "book", label: "Book", icon: BookMarked, tip: "The whole course as a book" },
   { id: "scroller", label: "Scroller", icon: Film, tip: "One section per vertical slide" },
   { id: "exams", label: "Exams", icon: FileText, tip: "Practice exams with timer" },
+  { id: "sorbonne", label: "Sorbonne", icon: GraduationCap, tip: "Sorbonne + Sociology dept + context diagram" },
+  { id: "coaching", label: "Coaching", icon: MessageCircleQuestion, tip: "100 coaching questions across 25 pomodoros (Magda)", adminOnly: true },
+  { id: "admin", label: "Admin", icon: KeyRound, tip: "Admin surfaces · Mat only", adminOnly: true },
   { id: "user", label: "Profile", icon: User, tip: "Your points, level, activity log" },
   { id: "students", label: "Students", icon: Users, tip: "Cohort dashboard (teachers only)", teacherOnly: true },
+];
+
+/* ══════════ Sorbonne + Sociology dept + context ══════════ */
+const SORBONNE = {
+  history: [
+    "Founded around 1150–1200 as a federation of Latin-Quarter theology colleges. Named after Robert de Sorbon, chaplain to Louis IX, who endowed a college for poor scholars in 1257.",
+    "Suppressed at the French Revolution (1793); rebuilt by Napoleon (1806) as the humanities pole of the imperial university. Rebuilt physically 1885–1901 into the Nénot campus still in use.",
+    "After May 1968 the historic university was split; today three inheritors share the name and buildings — Paris 1 (Panthéon-Sorbonne), Sorbonne Université (ex-Paris IV/VI), and Sorbonne Nouvelle (ex-Paris III).",
+    "Sociology at the Sorbonne runs through Durkheim's 1902 chair in Science of Education & Sociology, Bourdieu's Centre de sociologie européenne (1968–), and today's UFR (Unité de formation et de recherche) of Sociology & Anthropology.",
+  ],
+  department: {
+    name: "UFR de Sociologie · Sorbonne",
+    lines: [
+      "Undergraduate: L1 → L2 → L3 (three-year Licence), taught mostly in French; a stream of English-medium electives is now standard at L3.",
+      "Postgraduate: Masters Recherche (thesis track) and Masters Pro (professional track — data, public policy, media, work).",
+      "Research units linked in: GEMASS (Groupe d'Étude des Méthodes de l'Analyse Sociologique), CESSP (Centre européen de sociologie et de science politique), CEMS (Centre d'étude des mouvements sociaux).",
+      "Bourdieusian sociology (fields, capital, habitus) still shapes the syllabus, alongside pragmatism (Boltanski), STS (Latour), and — increasingly — sociology of AI, algorithms, and platforms.",
+    ],
+  },
+  perspectives: [
+    { name: "Structural", who: "Durkheim, Bourdieu", cue: "How do institutions and fields produce their own effects on individuals?" },
+    { name: "Interactionist", who: "Goffman, Becker", cue: "What are the frames, roles, and moral careers people work in?" },
+    { name: "Critical", who: "Frankfurt, Foucault", cue: "Whose interest does this arrangement serve, and how is it made to look natural?" },
+    { name: "Pragmatist", who: "Boltanski, Thévenot", cue: "What worlds of justification are the actors themselves invoking?" },
+    { name: "STS", who: "Latour, MacKenzie", cue: "Trace the socio-technical assemblage — humans, machines, standards, papers." },
+    { name: "AI-society", who: "Zuboff, Broussard, Ricaurte", cue: "How does automated classification redistribute power, work, and voice?" },
+  ],
+  rules: [
+    "Neutrality: teachers do not use the podium for partisan advocacy. Positioning yourself is acceptable if arguments are exposed as such.",
+    "Laïcité: no religious or political proselytism inside teaching space — mandated by French law since 1905, still binding in classrooms.",
+    "Anonymous marking: exam scripts are graded on the copy number, not the student name. Do not accept scripts marked with names on the outside.",
+    "Plagiarism (fraude aux examens): governed by the Code de l'éducation, sanction by the Section disciplinaire — refer, do not adjudicate.",
+    "Harassment: the Cellule d'écoute channel exists; direct any credible complaint there in writing, keep a dated note.",
+    "AI use: the Sorbonne allows AI as a study aid but not as unattributed authorship in exams and mémoires. State the policy explicitly in Class 1.",
+    "Attendance: L3 sociology historically permits controlled absences; check the current règlement des études for the exact rule before term.",
+    "Grading scale: /20 (10 = pass). 12 = assez bien, 14 = bien, 16 = très bien. Grade inflation invites suspicion — anchor at 12 for a competent essay.",
+  ],
+};
+
+const CONTEXT_NODES = [
+  { id: "magda", label: "Magda", sub: "Teaches from September", angle: 270 },
+  { id: "mat", label: "Mat", sub: "Coaches (next few days)", angle: 330 },
+  { id: "sociai", label: "SociAI", sub: "This platform", angle: 30 },
+  { id: "course", label: "Sociology of AI", sub: "26 lectures", angle: 90 },
+  { id: "ai", label: "AI", sub: "The object of study", angle: 150 },
+  { id: "sorbonne", label: "La Sorbonne", sub: "The institution", angle: 210 },
+];
+
+/* ══════════ Coaching bank — 25 rounds × 4 questions = 100 (record in POM chats) ══════════ */
+const COACHING_ROUNDS = [
+  { id: "r01", title: "Who are you as a teacher", pom: 1, gist: "Anchor the identity before the first class.",
+    qs: ["In one sentence, what is the promise you want to keep to your students by June?",
+      "What kind of teacher do you refuse to be, and why?",
+      "Which of your own past teachers do you most want to echo — and which do you want to invert?",
+      "When you close your office door on the last day, what will you want to hear yourself say?"] },
+  { id: "r02", title: "The Sorbonne context", pom: 2, gist: "Understand the frame before you fill it.",
+    qs: ["What does 'teaching at the Sorbonne' add to your identity that you want to earn?",
+      "How much of the institution's weight do you want to lean on in the classroom?",
+      "What are the two Sorbonne rules you will not bend, ever?",
+      "What is the polite, precise way you will describe your affiliation in a talk abroad?"] },
+  { id: "r03", title: "Sociology as your discipline", pom: 3, gist: "Locate yourself on the map of sociologies.",
+    qs: ["Which sociologist did you first fall for, and why did that book grip you?",
+      "Between structural and interactionist temperaments, where do you actually sit — before you defend one?",
+      "Which of Durkheim / Bourdieu / Boltanski / Latour is closest to how you'd interpret Class 1?",
+      "What is one sociological blind spot you know you have?"] },
+  { id: "r04", title: "Why the sociology of AI", pom: 4, gist: "Own the object of study.",
+    qs: ["What made you turn toward AI as an object rather than a tool?",
+      "What is one AI story you can tell in three minutes that lands the sociological point?",
+      "Where do you stop being sociologist and start being engineer — where's your line?",
+      "What is the empirical case you most want your students to be able to describe by June?"] },
+  { id: "r05", title: "Your students, L3", pom: 5, gist: "Imagine the actual bodies in the room.",
+    qs: ["Sketch three archetypes of student you expect in the room. What does each need from you?",
+      "What is the level of prior sociology you can assume, and what do you have to teach first?",
+      "How will you notice, by Class 3, the student who is quietly falling behind?",
+      "What is the language you use with a struggling student versus a bored star?"] },
+  { id: "r06", title: "Semester 1 arc — Machines, Markets & Media", pom: 6, gist: "Own the shape of S1.",
+    qs: ["If S1 had to leave one idea in every student's head, what is it?",
+      "Which of the 13 classes are you least confident teaching — and what is your first fix?",
+      "Where does the S1 arc most risk feeling like a list rather than a build?",
+      "How does Class 13 (synthesis) reward the reader who attended the first twelve?"] },
+  { id: "r07", title: "Semester 2 arc — Power, Ethics & Futures", pom: 7, gist: "Own the shape of S2.",
+    qs: ["What is the single argument S2 makes that S1 could not?",
+      "Which S2 class most tempts you into engineering-mode? What sociological handle keeps you there?",
+      "Where does S2 need to be careful not to sound like a policy paper?",
+      "How does the last class earn the word 'accountability' in its title?"] },
+  { id: "r08", title: "The reading list", pom: 8, gist: "Justify each choice.",
+    qs: ["Which reading did you include out of duty, and which out of love? How will that show?",
+      "What is the reading you'd defend if a colleague called it too journalistic?",
+      "Which paper do you predict most students will skim — and how do you use the class to reveal that?",
+      "What is the one reading that, if the syllabus lost it, would change the meaning of the whole course?"] },
+  { id: "r09", title: "Class 1 opening", pom: 9, gist: "Design the first 15 minutes.",
+    qs: ["What is the very first sentence out of your mouth in Class 1?",
+      "What do you write on the board before students arrive, if anything?",
+      "How do you introduce yourself without shrinking or inflating?",
+      "How do you make the syllabus feel like a promise rather than a menu?"] },
+  { id: "r10", title: "Authority without arrogance", pom: 10, gist: "Hold the room without pushing.",
+    qs: ["What is the smallest gesture that gives you presence when you walk in?",
+      "When a student asks something you don't know, what is your exact wording?",
+      "How do you correct a wrong answer without shaming the student?",
+      "Whose classroom presence do you envy — and what specifically do they do that you can borrow?"] },
+  { id: "r11", title: "Voice, pace, board", pom: 11, gist: "Craft, not charisma.",
+    qs: ["Where in a 90-minute class do you naturally speed up? What will you do about it?",
+      "How do you plan the board — one column, four quadrants, or nothing written?",
+      "What is the moment in a class where a well-placed silence does the work?",
+      "How do you check comprehension without asking 'do you understand?'"] },
+  { id: "r12", title: "Difficult questions", pom: 12, gist: "The hostile, the confused, the smart-off.",
+    qs: ["When a student asks something politically charged, what is your one-sentence policy?",
+      "How do you handle the confidently-wrong student without breaking their momentum to speak?",
+      "What is your move when the question is really an argument, not a question?",
+      "How do you close a discussion that is drifting without appearing to censor?"] },
+  { id: "r13", title: "Getting them to read", pom: 13, gist: "The reading is the class; the class is not the reading.",
+    qs: ["What is the visible test that a student has read this week? A question in class? A one-line quiz answer?",
+      "Which reading do you make optional (with real stakes attached)?",
+      "How do you make Zuboff readable to a 20-year-old who hasn't read Marx?",
+      "What is your first move in Class 2 when it becomes obvious half the room didn't read?"] },
+  { id: "r14", title: "The weekly quiz", pom: 14, gist: "Formative, low-stakes, honest.",
+    qs: ["What is the quiz for — recall, reading-check, or discussion primer?",
+      "How much of the final mark should quizzes count for, if any?",
+      "What do you do the week 3–4 students score below 30% on the quiz?",
+      "How do you announce that a quiz is not to punish but to protect them from the midterm?"] },
+  { id: "r15", title: "Midterms — writing + marking", pom: 15, gist: "The 20-mark essay is a moral act.",
+    qs: ["Read out loud your rubric — does it match how you actually grade?",
+      "What are the two clichés you refuse to accept as 'good essay style'?",
+      "How do you mark 42 essays without your standards drifting from #1 to #42?",
+      "How does an essay earn a 16 rather than a 14 in your book?"] },
+  { id: "r16", title: "Presentations", pom: 16, gist: "The public speaking teaching moment.",
+    qs: ["What does a great L3 sociology presentation look like — say it in a paragraph?",
+      "How do you set the topics so they aren't 26 versions of 'ChatGPT and society'?",
+      "How much time do you give feedback in the classroom, versus in writing?",
+      "What is the one habit you want them to leave the course with as speakers?"] },
+  { id: "r17", title: "Discussion vs lecture", pom: 17, gist: "Which minutes belong to whom.",
+    qs: ["What is the ratio of you talking to them talking, in a healthy 90 minutes?",
+      "How do you get discussion started when the room is quiet — and quiet when it's not?",
+      "What is your rule for calling on students who don't raise their hands?",
+      "When is more lecture actually the right call — and how do you signal that shift?"] },
+  { id: "r18", title: "AI in your own workflow", pom: 18, gist: "Practice what you name.",
+    qs: ["What is the most useful thing an LLM has done for your teaching prep this month?",
+      "Where do you refuse to use AI in your own work, and why?",
+      "How do you disclose to your students what you use — and what you don't?",
+      "What is the AI habit you want them to leave the year with?"] },
+  { id: "r19", title: "Politics in the classroom", pom: 19, gist: "Surveillance capitalism, gig economy, alignment.",
+    qs: ["When a student says 'this is just anti-capitalist', what is your considered reply?",
+      "How do you make room for a student whose politics is different from yours?",
+      "Where is the line between 'sociological description' and 'political position' in your voice?",
+      "What is the intellectual habit you owe your students, whatever their politics?"] },
+  { id: "r20", title: "Colleagues + disagreement", pom: 20, gist: "The politics of the corridor.",
+    qs: ["Who is one colleague whose good opinion you value most — and why?",
+      "How do you disagree with a senior colleague on their reading list?",
+      "Where is the line between polite deference and self-erasure?",
+      "How do you build the alliances that make your teaching easier?"] },
+  { id: "r21", title: "Marking, procedure, plagiarism", pom: 21, gist: "The Sorbonne rules exist to protect you too.",
+    qs: ["What is your written policy on ChatGPT use in essays — read it out?",
+      "What is the exact language you use in the syllabus about plagiarism?",
+      "When you suspect fraud, what are the three next steps — in order?",
+      "How do you protect a student who confesses before you catch them?"] },
+  { id: "r22", title: "Office hours", pom: 22, gist: "The private classroom.",
+    qs: ["Where and how often do you hold office hours, and with what door policy?",
+      "What is the sentence you use when a student steers office hours to personal territory?",
+      "How do you keep notes on individual students without turning yourself into surveillance?",
+      "How does a student unlock more of your time — and how do they lose it?"] },
+  { id: "r23", title: "Failure + complaints", pom: 23, gist: "When it goes wrong, follow procedure.",
+    qs: ["What is the earliest failure signal you're watching for in the first four weeks?",
+      "When a student complains about your marking, what is your first response?",
+      "When the class as a group turns against a topic, what is your move?",
+      "What is your rule for escalating to the responsable pédagogique — and when do you not?"] },
+  { id: "r24", title: "The first-week ritual", pom: 24, gist: "Design the ritual before you improvise.",
+    qs: ["What is the ritual (Monday morning, Sunday night) that gets you class-ready?",
+      "What is the ritual you owe your students in the first ten minutes of every class?",
+      "What is your ritual for closing a class in the last two minutes?",
+      "What is the ritual for the day after a class that went badly?"] },
+  { id: "r25", title: "Ten-year vision", pom: 25, gist: "The long view protects the day.",
+    qs: ["What is the article, book, or programme you want to be known for by 2036?",
+      "What is the reputation you would rather NOT have?",
+      "What is the smallest weekly habit that makes the ten-year vision plausible?",
+      "If SociAI still exists in 2036, what should it look like — and what should stay the same?"] },
 ];
 
 /* ══════════ GLOSSARY — 50 curated keywords with definitions ══════════ */
@@ -1580,10 +1758,12 @@ function ExamCard({ exam, isTeacher }) {
 }
 
 /* ══════════ Landing + Login ══════════ */
-const APP_VERSION = "v2.3";
+const APP_VERSION = "v2.4";
+const ADMIN_EMAIL = "mat@matsiems.com";
 const CREDENTIALS = {
   student: { user: "student", pass: "student2026" },
   teacher: { user: "teacher", pass: "teacher2026" },
+  admin: { user: ADMIN_EMAIL, pass: ADMIN_EMAIL },
 };
 /* ══════════ Gamification: 5-level ladder ══════════
    10 pts per correct quiz answer · 26 classes × 3 quiz = 780 max points */
@@ -1603,7 +1783,7 @@ function computeGamification(quizResults) {
 }
 
 function Landing({ onLogin, theme, setTheme }) {
-  const [role, setRole] = useState(null); // null | 'student' | 'teacher'
+  const [role, setRole] = useState(null); // null | 'student' | 'teacher' | 'admin'
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [err, setErr] = useState("");
@@ -1662,9 +1842,10 @@ function Landing({ onLogin, theme, setTheme }) {
             ))}
           </div>
 
-          <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", maxWidth: 560, margin: "0 auto" }}>
+          <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", maxWidth: 780, margin: "0 auto" }}>
             {roleCard("student", User, "Student login", "Follow lectures, take quizzes, track your progress")}
             {roleCard("teacher", Users, "Teacher login", "Everything students see, plus answer keys, rubrics & cohort analytics")}
+            {roleCard("admin", KeyRound, "Admin login", "Coach + admin surfaces · Mat only · mat@matsiems.com")}
           </div>
 
           {role && (
@@ -1675,10 +1856,12 @@ function Landing({ onLogin, theme, setTheme }) {
               </div>
               {[["Username", user, setUser, "text"], ["Password", pass, setPass, "password"]].map(([label, val, set, type]) => (
                 <div key={label} style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--muted-foreground)", marginBottom: 4 }}>{label}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--muted-foreground)", marginBottom: 4 }}>
+                    {label}{role === "admin" && label === "Username" ? " · email" : ""}
+                  </div>
                   <input type={type} value={val} onChange={e => { set(e.target.value); setErr(""); }}
                     onKeyDown={e => e.key === "Enter" && tryLogin()}
-                    placeholder={label === "Username" ? role : "••••"}
+                    placeholder={label === "Username" ? (role === "admin" ? ADMIN_EMAIL : role) : "••••"}
                     style={{ width: "100%", background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8,
                       padding: "8px 10px", fontSize: 13, color: "var(--foreground)", fontFamily: "inherit", outline: "none" }} />
                 </div>
@@ -1730,7 +1913,8 @@ export default function App() {
     }));
   });
 
-  const isTeacher = session?.role === "teacher";
+  const isAdmin = session?.role === "admin";
+  const isTeacher = session?.role === "teacher" || isAdmin;
   const selected = SESSIONS.find(s => s.id === selectedId) || null;
   const lecture = SESSIONS.find(s => s.id === lectureId) || null;
   const sem = activeNav === "s1" ? 1 : activeNav === "s2" ? 2 : null;
@@ -1794,7 +1978,7 @@ export default function App() {
       if (parts[0] === "apps" && parts[1]) idx = 2;
       const [top, arg, extra] = [parts[idx], parts[idx + 1], parts[idx + 2]];
       if (!top) return;
-      if (["dashboard", "s1", "s2", "diagrams", "glossary", "book", "scroller", "exams", "lectures", "user", "students"].includes(top)) {
+      if (["dashboard", "s1", "s2", "diagrams", "glossary", "book", "scroller", "exams", "lectures", "user", "students", "sorbonne", "coaching", "admin"].includes(top)) {
         setActiveNav(top); setLectureId(null);
       } else if (top === "lecture" && arg) {
         const s = findBySlug(arg);
@@ -2703,6 +2887,366 @@ export default function App() {
     );
   };
 
+  /* ══════════ Context diagram — bespoke sociogram tying it all together ══════════ */
+  const ContextDiagram = () => {
+    const W = 720, H = 420, cx = W / 2, cy = H / 2, R = 148;
+    const centerR = 46;
+    const nodeR = 44;
+    const toXY = (angle) => {
+      const rad = (angle - 90) * Math.PI / 180;
+      return { x: cx + R * Math.cos(rad), y: cy + R * Math.sin(rad) };
+    };
+    return (
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14, padding: 16, boxShadow: "var(--shadow-sm)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <BarChart3 size={14} style={{ color: "var(--primary)" }} />
+          <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>Where SociAI sits — a context diagram</div>
+        </div>
+        <div style={{ fontSize: 11.5, color: "var(--muted-foreground)", marginBottom: 12 }}>
+          Six actors around one platform: Magda teaches from September, Mat coaches over the next few days,
+          SociAI is the software layer, the course is <em>The Sociology of AI</em>, the object is AI itself,
+          and the institution is La Sorbonne.
+        </div>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: 720, display: "block", margin: "0 auto" }} xmlns="http://www.w3.org/2000/svg">
+          {CONTEXT_NODES.map((n) => {
+            const { x, y } = toXY(n.angle);
+            return <line key={"l-" + n.id} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--primary)" strokeOpacity="0.35" strokeWidth="1.5" />;
+          })}
+          {CONTEXT_NODES.map((n, i) => {
+            const next = CONTEXT_NODES[(i + 1) % CONTEXT_NODES.length];
+            const a = toXY(n.angle), b = toXY(next.angle);
+            return <line key={"e-" + n.id} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" />;
+          })}
+          <circle cx={cx} cy={cy} r={centerR} fill="var(--primary)" opacity="0.95" />
+          <text x={cx} y={cy - 4} textAnchor="middle" fill="var(--primary-foreground)" fontFamily="'Bodoni Moda', serif" fontWeight="800" fontSize="17">SociAI</text>
+          <text x={cx} y={cy + 12} textAnchor="middle" fill="var(--primary-foreground)" fontSize="9" opacity="0.85">v2.4</text>
+          {CONTEXT_NODES.map((n) => {
+            const { x, y } = toXY(n.angle);
+            return (
+              <g key={n.id}>
+                <circle cx={x} cy={y} r={nodeR} fill="var(--card)" stroke="var(--primary)" strokeWidth="2" />
+                <text x={x} y={y - 3} textAnchor="middle" fill="var(--foreground)" fontFamily="'Bodoni Moda', serif" fontWeight="700" fontSize="13">{n.label}</text>
+                <text x={x} y={y + 12} textAnchor="middle" fill="var(--muted-foreground)" fontSize="9">{n.sub}</text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    );
+  };
+
+  const SorbonneView = () => (
+    <div style={{ padding: 20, maxWidth: 1080, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }}>
+      <div>
+        <Badge variant="primary" size="xs">Institution</Badge>
+        <div className="serif" style={{ fontSize: 26, fontWeight: 800, margin: "8px 0 4px" }}>
+          La Sorbonne — the institution behind the course
+        </div>
+        <div style={{ fontSize: 12.5, color: "var(--muted-foreground)", lineHeight: 1.55, maxWidth: 780 }}>
+          A short brief on the Sorbonne, its Sociology department, and the sociological perspectives that
+          shape the syllabus. This is the frame every SociAI class sits inside — worth reading before Class 1.
+        </div>
+      </div>
+
+      <ContextDiagram />
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 14 }}>
+        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <GraduationCap size={14} style={{ color: "var(--primary)" }} />
+            <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>Nine centuries in four bullets</div>
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6, color: "var(--secondary-foreground)" }}>
+            {SORBONNE.history.map((h, i) => <li key={i} style={{ marginBottom: 6 }}>{h}</li>)}
+          </ul>
+        </div>
+        <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            <Users size={14} style={{ color: "var(--primary)" }} />
+            <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>{SORBONNE.department.name}</div>
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6, color: "var(--secondary-foreground)" }}>
+            {SORBONNE.department.lines.map((h, i) => <li key={i} style={{ marginBottom: 6 }}>{h}</li>)}
+          </ul>
+        </div>
+      </div>
+
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <BookOpen size={14} style={{ color: "var(--primary)" }} />
+          <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>Sociology in perspective — six lenses on Class 1</div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+          {SORBONNE.perspectives.map(p => (
+            <div key={p.name} style={{ background: "var(--surface-1)", border: "1px solid var(--border-subtle)", borderRadius: 10, padding: 12 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+                <span className="serif" style={{ fontWeight: 700, fontSize: 13.5 }}>{p.name}</span>
+                <span style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>· {p.who}</span>
+              </div>
+              <div style={{ fontSize: 11.5, color: "var(--secondary-foreground)", lineHeight: 1.5, fontStyle: "italic" }}>“{p.cue}”</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: "var(--warning-muted)", border: "1px solid var(--warning)", borderRadius: 12, padding: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <AlertTriangle size={14} style={{ color: "var(--warning)" }} />
+          <div className="serif" style={{ fontWeight: 800, fontSize: 15, color: "var(--foreground)" }}>Sorbonne rules the coach respects</div>
+        </div>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, lineHeight: 1.6, color: "var(--foreground)" }}>
+          {SORBONNE.rules.map((r, i) => <li key={i} style={{ marginBottom: 6 }}>{r}</li>)}
+        </ul>
+        <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 10 }}>
+          The coaching flow (in the <strong>Coaching</strong> tab) is designed inside these rules — never against them.
+        </div>
+      </div>
+    </div>
+  );
+
+  const CoachingView = () => {
+    const NOTE_KEY = "sociai_coaching_notes_v1";
+    const [activeRound, setActiveRound] = useState(0);
+    const [notes, setNotes] = useState(() => {
+      if (typeof window === "undefined") return {};
+      try { return JSON.parse(window.localStorage.getItem(NOTE_KEY) || "{}"); } catch { return {}; }
+    });
+    useEffect(() => {
+      if (typeof window === "undefined") return;
+      try { window.localStorage.setItem(NOTE_KEY, JSON.stringify(notes)); } catch {}
+    }, [notes]);
+    const round = COACHING_ROUNDS[activeRound];
+    const noteKeyFor = (qi) => `${round.id}.q${qi + 1}`;
+    const answered = COACHING_ROUNDS.reduce((sum, r) => sum + r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length, 0);
+    const total = COACHING_ROUNDS.length * 4;
+
+    const exportNotes = () => {
+      const md = COACHING_ROUNDS.map(r => {
+        const qs = r.qs.map((q, i) => {
+          const n = (notes[`${r.id}.q${i + 1}`] || "").trim();
+          return `- **Q${i + 1}.** ${q}\n${n ? "  > " + n.split("\n").join("\n  > ") : "  > _(no answer yet)_"}`;
+        }).join("\n");
+        return `## POM ${r.pom} — ${r.title}\n_${r.gist}_\n\n${qs}`;
+      }).join("\n\n---\n\n");
+      const blob = new Blob([`# SociAI Coaching · ${new Date().toISOString().slice(0,10)}\n\n_${answered}/${total} answered_\n\n${md}\n`], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `sociai-coaching-${new Date().toISOString().slice(0,10)}.md`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+    };
+
+    return (
+      <div style={{ padding: 20, maxWidth: 1080, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <Badge variant="destructive" size="xs">Coaching · admin only</Badge>
+            <div className="serif" style={{ fontSize: 26, fontWeight: 800, margin: "8px 0 4px" }}>
+              Coaching Magda — 25 pomodoros, 100 questions
+            </div>
+            <div style={{ fontSize: 12.5, color: "var(--muted-foreground)", lineHeight: 1.55, maxWidth: 780 }}>
+              Each round is one pomodoro (25 min) with four probing questions. Record the answers in an
+              informal chat (voice-mode ChatGPT works well) and paste the salient lines here — or type
+              directly. Notes are stored in your browser and can be exported as Markdown.
+              The whole flow stays inside the Sorbonne rules on the <strong>Sorbonne</strong> tab.
+            </div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+            <Badge variant="info" size="xs">{answered}/{total} answered</Badge>
+            <Btn variant="secondary" size="xs" onClick={exportNotes} title="Download all rounds + notes as Markdown">
+              <Save size={12} /> Export .md
+            </Btn>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 14 }}>
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: 8, height: "fit-content" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted-foreground)", padding: "6px 8px", letterSpacing: "0.05em" }}>25 POMODOROS</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 560, overflowY: "auto" }}>
+              {COACHING_ROUNDS.map((r, i) => {
+                const done = r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length;
+                const active = i === activeRound;
+                return (
+                  <button key={r.id} onClick={() => setActiveRound(i)}
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 8px", borderRadius: 6, border: "none",
+                      cursor: "pointer", fontFamily: "inherit", fontSize: 11.5, textAlign: "left",
+                      background: active ? "var(--accent)" : "transparent",
+                      color: active ? "var(--accent-foreground)" : "var(--secondary-foreground)",
+                      fontWeight: active ? 700 : 500 }}>
+                    <span style={{ width: 22, textAlign: "right", fontVariantNumeric: "tabular-nums", opacity: 0.7 }}>{r.pom}</span>
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</span>
+                    <span style={{ fontSize: 9.5, color: done === 4 ? "var(--success)" : "var(--muted-foreground)" }}>{done}/4</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 18 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontSize: 11, color: "var(--muted-foreground)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                  POM {round.pom} · Round {activeRound + 1} of {COACHING_ROUNDS.length}
+                </div>
+                <div className="serif" style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>{round.title}</div>
+                <div style={{ fontSize: 12, color: "var(--muted-foreground)", fontStyle: "italic", marginTop: 4 }}>{round.gist}</div>
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <Btn variant="secondary" size="xs" disabled={activeRound === 0} onClick={() => setActiveRound(a => Math.max(0, a - 1))}>
+                  <ArrowLeft size={12} /> Prev
+                </Btn>
+                <Btn variant="primary" size="xs" disabled={activeRound === COACHING_ROUNDS.length - 1} onClick={() => setActiveRound(a => Math.min(COACHING_ROUNDS.length - 1, a + 1))}>
+                  Next <ChevronRight size={12} />
+                </Btn>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 8 }}>
+              {round.qs.map((q, qi) => {
+                const key = noteKeyFor(qi);
+                const val = notes[key] || "";
+                const has = val.trim().length > 0;
+                return (
+                  <div key={qi} style={{ borderLeft: `3px solid ${has ? "var(--success)" : "var(--border)"}`, paddingLeft: 12 }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, borderRadius: "50%",
+                        background: has ? "var(--success-muted)" : "var(--muted)", color: has ? "var(--success)" : "var(--muted-foreground)",
+                        fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{qi + 1}</span>
+                      <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.4, color: "var(--foreground)" }}>{q}</div>
+                    </div>
+                    <textarea value={val}
+                      onChange={e => setNotes(n => ({ ...n, [key]: e.target.value }))}
+                      placeholder="Paste from your POM chat, or type freely. Saved locally."
+                      style={{ width: "100%", minHeight: 60, background: "var(--input)", border: "1px solid var(--border)", borderRadius: 8,
+                        padding: "8px 10px", fontSize: 12.5, color: "var(--foreground)", fontFamily: "inherit", resize: "vertical", outline: "none", lineHeight: 1.5 }} />
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: 14, padding: 10, background: "var(--surface-2)", border: "1px solid var(--border-subtle)", borderRadius: 8,
+              fontSize: 11.5, color: "var(--muted-foreground)", display: "flex", alignItems: "flex-start", gap: 8 }}>
+              <Mic size={13} style={{ flexShrink: 0, marginTop: 1, color: "var(--primary)" }} />
+              <span>
+                Suggested flow: read the four questions, start a voice-mode chat, talk it through for ~25 minutes,
+                paste the useful lines. Rounds are ordered but not sequential — jump wherever the day allows.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const AdminView = () => {
+    const NOTE_KEY = "sociai_coaching_notes_v1";
+    const [ping, setPing] = useState(0);
+    useEffect(() => { const id = setInterval(() => setPing(p => p + 1), 1000); return () => clearInterval(id); }, []);
+    const notes = (() => {
+      if (typeof window === "undefined") return {};
+      try { return JSON.parse(window.localStorage.getItem(NOTE_KEY) || "{}"); } catch { return {}; }
+    })();
+    const answered = COACHING_ROUNDS.reduce((sum, r) => sum + r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length, 0);
+    const totalQs = COACHING_ROUNDS.length * 4;
+    const uptime = typeof performance !== "undefined" ? Math.round(performance.now() / 1000) : 0;
+
+    const stat = (label, value, hint) => (
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: 14 }}>
+        <div style={{ fontSize: 10.5, color: "var(--muted-foreground)", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>{label}</div>
+        <div className="serif" style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)", marginTop: 4 }}>{value}</div>
+        {hint && <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 3 }}>{hint}</div>}
+      </div>
+    );
+
+    const clearNotes = () => {
+      if (typeof window === "undefined") return;
+      if (!window.confirm("Clear all coaching notes on this device?")) return;
+      window.localStorage.removeItem(NOTE_KEY);
+      window.location.reload();
+    };
+
+    return (
+      <div style={{ padding: 20, maxWidth: 1080, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
+        <div>
+          <Badge variant="destructive" size="xs">Admin · Mat only</Badge>
+          <div className="serif" style={{ fontSize: 26, fontWeight: 800, margin: "8px 0 4px" }}>
+            Admin — coach console
+          </div>
+          <div style={{ fontSize: 12.5, color: "var(--muted-foreground)", lineHeight: 1.55, maxWidth: 780 }}>
+            Surfaces visible only when signed in as <code>{ADMIN_EMAIL}</code>. Used to steer the coaching flow,
+            check platform health, and hand off between coaching sessions.
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+          {stat("Coaching answered", `${answered}/${totalQs}`, `${Math.round((answered / totalQs) * 100)}% complete`)}
+          {stat("Pomodoros", `${COACHING_ROUNDS.length}`, "25 rounds × 4 questions")}
+          {stat("Classes", "26", "S1 · S2 · 260 sections")}
+          {stat("Diagrams", "26+", "one per class + Sorbonne context")}
+          {stat("Session uptime", `${uptime}s`, `ping ${ping}`)}
+          {stat("Version", APP_VERSION, "sociai.matsiems.com")}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 14 }}>
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <MessageCircleQuestion size={14} style={{ color: "var(--primary)" }} />
+              <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>Next coaching pomodoros</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {COACHING_ROUNDS.map((r, i) => {
+                const done = r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length;
+                if (done === 4) return null;
+                return (
+                  <button key={r.id} onClick={() => { setActiveNav("coaching"); setTimeout(() => window.dispatchEvent(new Event("popstate")), 0); }}
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, border: "1px solid var(--border-subtle)",
+                      background: "var(--surface-1)", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12.5, textAlign: "left" }}>
+                    <Badge variant="default" size="xs">POM {r.pom}</Badge>
+                    <span style={{ flex: 1, fontWeight: 600 }}>{r.title}</span>
+                    <span style={{ fontSize: 10.5, color: done ? "var(--warning)" : "var(--muted-foreground)" }}>{done}/4</span>
+                  </button>
+                );
+              }).slice(0, 6)}
+              {COACHING_ROUNDS.every(r => r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length === 4) && (
+                <div style={{ padding: 12, textAlign: "center", color: "var(--success)", fontSize: 12 }}>
+                  All 100 questions answered — export the .md and hand off.
+                </div>
+              )}
+            </div>
+            <Btn variant="secondary" size="xs" style={{ marginTop: 10 }} onClick={() => setActiveNav("coaching")}>
+              <ArrowLeft size={12} /> Open coaching
+            </Btn>
+          </div>
+
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <TrendingUp size={14} style={{ color: "var(--primary)" }} />
+              <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>Fleet + cohort links</div>
+            </div>
+            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 6, fontSize: 12.5 }}>
+              <li><a href="/students" onClick={e => { e.preventDefault(); setActiveNav("students"); }} style={{ color: "var(--primary)" }}>Cohort dashboard (42 students)</a></li>
+              <li><a href="/exams" onClick={e => { e.preventDefault(); setActiveNav("exams"); }} style={{ color: "var(--primary)" }}>Exams — midterms + finals</a></li>
+              <li><a href="/diagrams" onClick={e => { e.preventDefault(); setActiveNav("diagrams"); }} style={{ color: "var(--primary)" }}>All 26 hero diagrams</a></li>
+              <li><a href="/glossary" onClick={e => { e.preventDefault(); setActiveNav("glossary"); }} style={{ color: "var(--primary)" }}>Glossary — {GLOSSARY.length} keywords</a></li>
+              <li><a href="/sorbonne" onClick={e => { e.preventDefault(); setActiveNav("sorbonne"); }} style={{ color: "var(--primary)" }}>Sorbonne + context diagram</a></li>
+            </ul>
+          </div>
+
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <AlertTriangle size={14} style={{ color: "var(--warning)" }} />
+              <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>Danger zone</div>
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--muted-foreground)", lineHeight: 1.5, marginBottom: 10 }}>
+              Coaching notes live in <code>localStorage</code> on this device only. Export before clearing.
+            </div>
+            <Btn variant="secondary" size="xs" onClick={clearNotes}><RotateCcw size={12} /> Clear all coaching notes</Btn>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const showSessionsUI = (activeNav === "s1" || activeNav === "s2") && !lecture;
 
   return (
@@ -2723,7 +3267,9 @@ export default function App() {
             <div style={{ fontSize: 10, color: "var(--muted-foreground)" }}>Sociology of AI · La Sorbonne · L3 · 2026/27</div>
           </div>
           <Badge variant="default" size="xs">{APP_VERSION}</Badge>
-          <Badge variant={isTeacher ? "warning" : "primary"} size="xs">{isTeacher ? "Teacher" : "Student"}</Badge>
+          <Badge variant={isAdmin ? "destructive" : isTeacher ? "warning" : "primary"} size="xs">
+            {isAdmin ? "Admin" : isTeacher ? "Teacher" : "Student"}
+          </Badge>
           <div style={{ flex: 1 }} />
           <button onClick={() => setSearchOpen(true)} title="Search glossary, lectures, pages (Ctrl+S)"
             style={{ display: "flex", alignItems: "center", gap: 8, width: 260, background: "var(--input)", border: "1px solid var(--border)",
@@ -2760,12 +3306,13 @@ export default function App() {
                   </div>
                   {[
                     { role: "student", username: "student", label: "student · read + quiz" },
-                    { role: "teacher", username: "teacher", label: "teacher · + admin pages" },
+                    { role: "teacher", username: "teacher", label: "teacher · + rubrics + cohort" },
+                    { role: "admin", username: ADMIN_EMAIL, label: "admin · coach + admin pages" },
                   ].map(u => (
                     <button key={u.role} onClick={() => { setSession(u); setUserMenu(false); }} title={`Switch to ${u.role} view`}
                       style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", background: session?.role === u.role ? "var(--accent)" : "transparent",
                         border: "none", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12, borderRadius: 6, textAlign: "left" }}>
-                      {u.role === "teacher" ? <Users size={13} /> : <User size={13} />} {u.label}
+                      {u.role === "admin" ? <KeyRound size={13} /> : u.role === "teacher" ? <Users size={13} /> : <User size={13} />} {u.label}
                       {session?.role === u.role && <Check size={13} style={{ marginLeft: "auto", color: "var(--primary)" }} />}
                     </button>
                   ))}
@@ -2813,7 +3360,7 @@ export default function App() {
           {/* LEFT NAV */}
           <nav style={{ width: navOpen ? 210 : 56, flexShrink: 0, background: "var(--secondary)", borderRight: "1px solid var(--border)",
             display: "flex", flexDirection: "column", padding: 8, gap: 4, transition: "width .2s", zIndex: 20 }}>
-            {NAV.filter(n => !n.teacherOnly || isTeacher).map(n => {
+            {NAV.filter(n => (!n.teacherOnly || isTeacher) && (!n.adminOnly || isAdmin)).map(n => {
               const active = activeNav === n.id;
               return (
                 <button key={n.id} className={active ? "" : "navitem"} title={n.tip || n.label}
@@ -2856,6 +3403,9 @@ export default function App() {
                   activeNav === "user" ? "Profile" :
                   activeNav === "students" ? "Students · cohort" :
                   activeNav === "scroller" ? "Lecture Scroller" :
+                  activeNav === "sorbonne" ? "Sorbonne · context" :
+                  activeNav === "coaching" ? "Coaching · Magda" :
+                  activeNav === "admin" ? "Admin · coach console" :
                   `Semester ${sem} — ${sem === 1 ? "Machines, Markets & Media" : "Power, Ethics & Futures"}`}
               </span>
               {showSessionsUI && <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>{filtered.length} classes</span>}
@@ -2891,6 +3441,9 @@ export default function App() {
                   {activeNav === "scroller" && <ScrollerView />}
                   {activeNav === "user" && <UserView />}
                   {activeNav === "students" && <StudentsView />}
+                  {activeNav === "sorbonne" && <SorbonneView />}
+                  {activeNav === "coaching" && isAdmin && <CoachingView />}
+                  {activeNav === "admin" && isAdmin && <AdminView />}
                   {showSessionsUI && (viewMode === "tiles" ? <TilesView /> : viewMode === "table" ? <TableView /> : <ScrollView />)}
                 </>
               )}
@@ -2974,7 +3527,7 @@ export default function App() {
           background: "var(--secondary)", borderTop: "1px solid var(--border)", fontSize: 11, color: "var(--muted-foreground)", zIndex: 30 }}>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--success)" }} />
-            {isTeacher ? "Teacher session" : "Student session"} · {doneCount}/26 quizzes{doneCount ? ` · avg ${avgPct}%` : ""}
+            {isAdmin ? "Admin session" : isTeacher ? "Teacher session" : "Student session"} · {doneCount}/26 quizzes{doneCount ? ` · avg ${avgPct}%` : ""}
           </span>
           <Btn variant="ghost" size="xs" title="Open a random class" onClick={() => openLecture(SESSIONS[Math.floor(Math.random() * SESSIONS.length)])}>
             <Shuffle size={12} /> Random
@@ -2988,7 +3541,11 @@ export default function App() {
               activeNav === "students" ? `${students.length} students · avg ${Math.round(students.reduce((a,s)=>a+s.quiz,0)/students.length)}%` :
               activeNav === "lectures" ? "All 26 lectures · full index" :
               activeNav === "user" ? "Your profile · progress · logs" :
-              activeNav === "scroller" ? "286 slides · one section at a time · scroll ↓" : "Sociology L3 · 26 × 1h30 · 10 sections per lecture"}
+              activeNav === "scroller" ? "286 slides · one section at a time · scroll ↓" :
+              activeNav === "sorbonne" ? "Sorbonne · Sociology dept · six perspectives · context diagram" :
+              activeNav === "coaching" ? `Coaching · ${COACHING_ROUNDS.length} pomodoros × 4 questions = ${COACHING_ROUNDS.length * 4}` :
+              activeNav === "admin" ? "Admin surfaces · Mat only" :
+              "Sociology L3 · 26 × 1h30 · 10 sections per lecture"}
           </span>
           {/* Gamification chip — clickable, opens user page */}
           <button onClick={() => { setActiveNav("user"); setLectureId(null); setSelectedId(null); }}

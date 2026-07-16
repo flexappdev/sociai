@@ -7,10 +7,15 @@ const SITE_URL = "https://sociai.matsiems.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "SociAI — social layer for the AI-native web", template: "%s · SociAI" },
-  description: "SociAI is the social layer for the AI-native web.",
+  title: { default: "SociAI — Sociology of Artificial Intelligence · La Sorbonne", template: "%s · SociAI" },
+  description: "The Sociology of Artificial Intelligence — a Sorbonne L3 course app: 26 lectures, diagrams, glossary, exams, and a coaching layer.",
   applicationName: "SociAI",
   alternates: { canonical: "/" },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-touch-icon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     type: "website",
     url: SITE_URL,
