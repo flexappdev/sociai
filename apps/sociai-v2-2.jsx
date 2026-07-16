@@ -3194,19 +3194,19 @@ export default function App() {
               <div className="serif" style={{ fontWeight: 800, fontSize: 15 }}>Next coaching pomodoros</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {COACHING_ROUNDS.map((r, i) => {
-                const done = r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length;
-                if (done === 4) return null;
-                return (
-                  <button key={r.id} onClick={() => { setActiveNav("coaching"); setTimeout(() => window.dispatchEvent(new Event("popstate")), 0); }}
+              {COACHING_ROUNDS
+                .map(r => ({ r, done: r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length }))
+                .filter(({ done }) => done < 4)
+                .slice(0, 6)
+                .map(({ r, done }) => (
+                  <button key={r.id} onClick={() => setActiveNav("coaching")}
                     style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, border: "1px solid var(--border-subtle)",
                       background: "var(--surface-1)", cursor: "pointer", color: "var(--foreground)", fontFamily: "inherit", fontSize: 12.5, textAlign: "left" }}>
                     <Badge variant="default" size="xs">POM {r.pom}</Badge>
                     <span style={{ flex: 1, fontWeight: 600 }}>{r.title}</span>
                     <span style={{ fontSize: 10.5, color: done ? "var(--warning)" : "var(--muted-foreground)" }}>{done}/4</span>
                   </button>
-                );
-              }).slice(0, 6)}
+                ))}
               {COACHING_ROUNDS.every(r => r.qs.filter((_, qi) => (notes[`${r.id}.q${qi + 1}`] || "").trim().length > 0).length === 4) && (
                 <div style={{ padding: 12, textAlign: "center", color: "var(--success)", fontSize: 12 }}>
                   All 100 questions answered — export the .md and hand off.
